@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router";
 import "./App.css";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DummyHome from "./pages/app/DummyHome";
-import DummyLogin from "./pages/authentication/DummyLogin";
+// import DummyLogin from "./pages/authentication/DummyLogin";
 import AuthLayout from "./layouts/AuthLayout";
 import Inventory from "./pages/app/Inventory";
 import Users from "./pages/app/Users";
@@ -17,9 +17,7 @@ function App() {
       <Route
         path="/"
         element={
-          <div className="text-7xl">
-            Project Template || Please read readme file
-          </div>
+          <DummyHome/>
         }
       />
 
@@ -58,9 +56,9 @@ function App() {
         <Route path="reservations" element={<Reservations />} />
       </Route>
 
-      <Route path="auth" element={<AuthLayout />}>
+      {/* <Route path="auth" element={<AuthLayout />}>
         <Route path="login" element={<DummyLogin />} />
-      </Route>
+      </Route> */}
 
       <Route
         path="*"
