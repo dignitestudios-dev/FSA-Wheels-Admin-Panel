@@ -14,15 +14,15 @@ import ReservationDetails from "./pages/app/ReservationDetails";
 function App() {
   return (
     <Routes>
-      <Route
+      {/* <Route
         path="/"
-        element={
-          <DummyHome/>
-        }
-      />
+        <Route path="app" element={<DashboardLayout />}>
+        <Route path="/" element={<DummyHome />} />
+      </Route>
+      /> */}
 
-      <Route path="app" element={<DashboardLayout />}>
-        <Route path="dashboard" element={<DummyHome />} />
+      <Route element={<DashboardLayout />}>
+        <Route path="/" element={<DummyHome />} />
       </Route>
 
       <Route path="app" element={<DashboardLayout />}>
