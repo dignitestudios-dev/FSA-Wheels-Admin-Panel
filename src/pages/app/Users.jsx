@@ -150,7 +150,7 @@ const Users = () => {
                       <button
                         onClick={() => handleViewUser(user.id)}  // Navigate to user details page
                         aria-label="View"
-                        className="flex items-center justify-center w-8 h-8 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition duration-200"
+                        className="flex items-center justify-center w-8 h-8 rounded-md border border-blue-600 text-blue-500 hover:bg-blue-500 hover:text-white transition duration-200"
                       >
                         <FaRegEye />
 
