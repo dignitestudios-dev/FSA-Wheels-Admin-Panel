@@ -4,26 +4,21 @@ import { FiLoader } from "react-icons/fi";
 import { FaRegEye, FaRegEyeSlash } from "react-icons/fa";
 import { Logo } from "../../assets/export";
 
-const DummyLogin = () => {
+const ResetPassword = () => {
   const navigate = useNavigate();  // Initialize the useNavigate hook
 
   const handleLoginClick = () => {
     // Navigate to the dashboard after login button click
-    navigate("/app/dashboard");
-  };
-
-    const handleForgotClick = () => {
-    // Navigate to the dashboard after login button click
-    navigate("/auth/forgot-password");
+    navigate("/");
   };
 
   return (
     <div className="w-full border-8 border-[#0893F0] h-auto flex flex-col items-center p-6 justify-center md:w-[499px] md:h-[548px]  rounded-[19px] bg-white">
       <img src={Logo} alt="orange_logo" className="w-[148.4px]" />
       <div className="w-auto flex flex-col mt-4 justify-center items-center">
-        <h2 className="text-[32px] font-bold leading-[48px]">Welcome Back</h2>
+        <h2 className="text-[32px] font-bold leading-[48px]">Reset Password</h2>
         <p className="text-[18px] font-normal text-center leading-[27px] text-[#3C3C43D9]">
-          Please enter your details to continue
+          Please enter your new password to continue
         </p>
       </div>
 
@@ -56,41 +51,20 @@ const DummyLogin = () => {
           </div>
         </div>
 
-        <div className="w-full -mt-1 flex items-center justify-end">
-         
-          <button
-            type="button"
-            onClick={handleForgotClick}
-            className="text-[#0893F0] hover:no-underline hover:text-blue-600 text-[16px] font-normal leading-[20.4px]"
-          >
-            Forgot Password?
-            </button>
-        </div>
+        
 
         <button
           type="button"  // Change from <NavLink> to <button> with onClick
           onClick={handleLoginClick}  // Trigger the navigate function
           className="w-full h-[49px] rounded-[8px] bg-[#0893F0] text-white flex gap-2 items-center justify-center text-md font-medium"
         >
-          <span>Log In</span>
+          <span>Update</span>
           {/* Optionally show a loading spinner */}
           {/* <FiLoader className="animate-spin text-lg" /> */}
         </button>
-
-        {/* <div className="w-full h-[49px] flex justify-center items-center">
-          <span className="text-[14px] md:text-[18px] flex gap-1 font-normal leading-[27px] text-[#959393]">
-            Don’t Have an Account?
-            <NavLink
-              className="font-semibold hover:no-underline hover:text-blue-600 text-blue-500"
-              to={"/signup"}
-            >
-              Let’s Sign Up
-            </NavLink>
-          </span>
-        </div> */}
       </form>
     </div>
   );
 };
 
-export default DummyLogin;
+export default ResetPassword;

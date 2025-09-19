@@ -1,4 +1,8 @@
-import { FaUsers, FaDollarSign, FaCalendarCheck, FaEdit, FaTrash } from "react-icons/fa";
+import React, { useState } from 'react';
+import { FaUsers, FaDollarSign, FaCalendarCheck, FaEdit, FaTrash, FaRegEye } from "react-icons/fa";
+import { Trash } from 'lucide-react';
+import { useNavigate } from 'react-router';
+
 
 const DummyHome = () => {
   // Example data for the dashboard
@@ -48,6 +52,42 @@ const DummyHome = () => {
     },
   ];
 
+  // Modal state
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+    const navigate = useNavigate();  // Initialize the navigation hook
+  
+
+  const openEditModal = (user) => {
+    setCurrentUser(user);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+  };
+
+  const openDeleteModal = (user) => {
+    setCurrentUser(user);
+    setIsDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleDeleteUser = () => {
+    // Logic for deleting user
+    alert(`User ${currentUser.name} deleted.`);
+    setIsDeleteModalOpen(false);
+  };
+
+  const handleViewUser = (userId) => {
+    // Navigate to the user details page
+    navigate(`/app/user-details`);
+  };
+
   return (
     <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       <h1 className="col-span-3 text-3xl font-semibold text-gray-800 ">Dashboard</h1>
@@ -95,25 +135,46 @@ const DummyHome = () => {
             <tbody>
               {users.map((user) => (
                 <tr key={user.id} className="border-b hover:bg-gray-50 transition-all">
-                   <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-3">
-  <img 
-    src={user.image || 'https://via.placeholder.com/40'} 
-    alt={user.name} 
-    className="w-12 h-12 rounded-full object-cover"
-  />
-  <span>{user.name}</span>
-</td>
+                  <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-3">
+                    <img
+                      src={user.image || 'https://via.placeholder.com/40'}
+                      alt={user.name}
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <span>{user.name}</span>
+                  </td>
+
                   <td className="px-6 py-4 text-sm text-gray-800">{user.email}</td>
                   <td className="px-6 py-4 text-sm text-gray-800">{user.role}</td>
                   <td className="px-6 py-4 text-sm text-gray-800">{user.dateJoined}</td>
                   <td className="px-6 py-4 text-sm text-gray-800">{user.lastLogin}</td>
-                  <td className="px-6 py-4 text-sm text-gray-800 flex space-x-3">
-                    <button className="text-blue-500 hover:text-blue-700 transition duration-200">
-                      <FaEdit />
-                    </button>
-                    <button className="text-red-500 hover:text-red-700 transition duration-200">
-                      <FaTrash />
-                    </button>
+
+                  <td className="px-6 py-4 text-sm text-gray-800">
+                    <div className="flex items-center justify-start gap-3">
+                                            <button
+                                                                    onClick={() => handleViewUser(user.id)}  // Navigate to user details page
+                                                                    aria-label="View"
+                                                                    className="flex items-center justify-center w-8 h-8 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition duration-200"
+                                                                  >
+                                                                    <FaRegEye />
+                                            
+                                                                  </button>
+{/*                       
+                      <button
+                        onClick={() => openEditModal(user)}
+                        aria-label="Edit"
+                        className="flex items-center justify-center w-8 h-8 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition duration-200"
+                      >
+                        <FaEdit className="text-base" />
+                      </button> */}
+                      {/* <button
+                        onClick={() => openDeleteModal(user)}
+                        aria-label="Delete"
+                        className="flex items-center justify-center w-8 h-8 rounded-md border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition duration-200"
+                      >
+                        <FaTrash className="text-base" />
+                      </button> */}
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -121,6 +182,77 @@ const DummyHome = () => {
           </table>
         </div>
       </div>
+
+      {/* Edit User Modal */}
+      {isEditModalOpen && currentUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
+            <h2 className="text-xl font-medium text-gray-800 mb-4">Edit User</h2>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-600">Name</label>
+              <input
+                type="text"
+                value={currentUser.name}
+                onChange={(e) => setCurrentUser({ ...currentUser, name: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-600">Email</label>
+              <input
+                type="email"
+                value={currentUser.email}
+                onChange={(e) => setCurrentUser({ ...currentUser, email: e.target.value })}
+                className="w-full p-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <button
+              onClick={closeEditModal}
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+            >
+              Save Changes
+            </button>
+            <button
+              onClick={closeEditModal}
+              className="absolute top-2 right-4 text-gray-600 text-3xl hover:text-gray-800"
+              aria-label="Close Modal"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Delete User Modal */}
+      {isDeleteModalOpen && currentUser && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full relative">
+            <h2 className="text-xl font-medium text-gray-800 mb-4">Delete User</h2>
+            <p className="mb-4">Are you sure you want to delete {currentUser.name}?</p>
+            <div className="flex gap-4">
+              <button
+                onClick={handleDeleteUser}
+                className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200"
+              >
+                Delete
+              </button>
+              <button
+                onClick={closeDeleteModal}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition duration-200"
+              >
+                Cancel
+              </button>
+            </div>
+            <button
+              onClick={closeDeleteModal}
+              className="absolute top-2 right-4 text-gray-600 text-3xl hover:text-gray-800"
+              aria-label="Close Modal"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

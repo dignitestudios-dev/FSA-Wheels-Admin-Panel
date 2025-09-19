@@ -84,11 +84,13 @@ const Reservations = () => {
   const navigate = useNavigate();
 
   // Function to handle card click and navigate to reservation details
-  const handleCardClick = (reservationId) => {
-    // navigate(`/app/reservation-details/${reservationId}`);
+ const handleCardClick = (reservationId) => {
+  if (activeTab === "completed") {
+    navigate(`/app/reservation-completed`);
+  } else {
     navigate(`/app/reservation-details`);
-
-  };
+  }
+};
 
   return (
     <div className="p-6 pt-0 space-y-6">

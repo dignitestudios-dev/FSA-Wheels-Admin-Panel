@@ -10,6 +10,12 @@ import Reservations from "./pages/app/Reservations";
 import CreateUser from "./pages/app/CreateUser";
 import Notifications from "./pages/app/Notifications";
 import ReservationDetails from "./pages/app/ReservationDetails";
+import DummyLogin from "./pages/authentication/DummyLogin";
+import ReservationCompleted from "./pages/app/ReservationCompleted";
+import ForgotPassword from "./pages/authentication/ForgotPassword";
+import ResetPassword from "./pages/authentication/ResetPassword";
+import Verification from "./pages/authentication/Verification";
+import UserDetails from "./pages/app/UserDetails";
 
 function App() {
   return (
@@ -21,9 +27,15 @@ function App() {
       </Route>
       /> */}
 
-      <Route element={<DashboardLayout />}>
-        <Route path="/" element={<DummyHome />} />
+      <Route path="app" element={<DashboardLayout />}>
+        <Route path="dashboard" element={<DummyHome />} />
+      </Route>  
+
+       <Route element={<AuthLayout />}>
+        <Route path="/" element={<DummyLogin />} />
       </Route>
+
+    
 
       <Route path="app" element={<DashboardLayout />}>
         <Route path="inventory" element={<Inventory />} />
@@ -33,6 +45,11 @@ function App() {
         <Route path="users" element={<Users />} />
       </Route>
 
+
+ <Route path="app" element={<DashboardLayout />}>
+        <Route path="user-details" element={<UserDetails />} />
+      </Route>
+
        <Route path="app" element={<DashboardLayout />}>
         <Route path="create-user" element={<CreateUser />} />
       </Route>
@@ -40,6 +57,11 @@ function App() {
 
         <Route path="app" element={<DashboardLayout />}>
         <Route path="reservation-details" element={<ReservationDetails />} />
+      </Route>
+
+
+        <Route path="app" element={<DashboardLayout />}>
+        <Route path="reservation-completed" element={<ReservationCompleted />} />
       </Route>
 
        <Route path="app" element={<DashboardLayout />}>
@@ -55,10 +77,27 @@ function App() {
   <Route path="app" element={<DashboardLayout />}>
         <Route path="reservations" element={<Reservations />} />
       </Route>
-
-      {/* <Route path="auth" element={<AuthLayout />}>
+{/* 
+      <Route path="auth" element={<AuthLayout />}>
         <Route path="login" element={<DummyLogin />} />
       </Route> */}
+
+       <Route path="auth" element={<AuthLayout />}>
+        <Route path="forgot-password" element={<ForgotPassword />} />
+      </Route>
+
+
+       <Route path="auth" element={<AuthLayout />}>
+        <Route path="forgot-password" element={<ForgotPassword />} />
+      </Route>
+
+      <Route path="auth" element={<AuthLayout />}>
+        <Route path="reset-password" element={<ResetPassword />} />
+      </Route>
+
+     <Route path="auth" element={<AuthLayout />}>
+        <Route path="verification" element={<Verification />} />
+      </Route>
 
       <Route
         path="*"

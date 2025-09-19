@@ -3,7 +3,7 @@ import { sidebarData } from "../../static/Sidebar";
 
 const DummySidebar = () => {
   return (
-    <div className="w-64 h-full bg-white  overflow-y-auto px-5 py-6 flex flex-col gap-4 shadow">
+    <div className="w-64 min-h-screen bg-white border-r border-gray-200 overflow-y-auto px-5 py-6 flex flex-col gap-4 ">
       {sidebarData?.map((sidebar) => {
         return (
           <NavLink

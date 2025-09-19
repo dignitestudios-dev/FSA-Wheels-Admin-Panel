@@ -14,6 +14,7 @@ const DummyNavbar = () => {
       {/* User Avatar and Profile Dropdown */}
       <div className="flex items-center space-x-3 relative">
         {/* User Avatar with Hover Effect */}
+        
         <div className="relative group">
           <img
             src={Logo} // Replace with actual user avatar

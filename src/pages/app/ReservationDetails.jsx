@@ -4,7 +4,8 @@ import { FaLocationDot } from "react-icons/fa6";
 import { BsClock } from "react-icons/bs";
 import { IoCarSportOutline } from "react-icons/io5";
 import { audi,hyundai,van } from "../../assets/export"; // Adding more cars for selection
-import { CiWarning } from "react-icons/ci";
+import { TiWarning } from "react-icons/ti";
+
 
 
 const ReservationDetails = () => {
@@ -58,17 +59,25 @@ const ReservationDetails = () => {
       {/* Reservation Card */}
       <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
         {/* Driver Info */}
-        <div className="flex items-center gap-4 p-6 bg-gray-100">
-          <img
-            src="https://randomuser.me/api/portraits/men/10.jpg"
-            alt="Driver"
-            className="w-16 h-16 rounded-full object-cover"
-          />
-          <div className="text-sm">
-            <p className="text-gray-700 font-semibold">{reservation.driver}</p>
-            <p className="text-gray-500">Driver</p>
-          </div>
-        </div>
+          <div className="flex justify-between items-center p-6 bg-gray-100">
+  {/* Driver Info */}
+  <div className="flex items-center gap-4">
+    <img
+      src="https://randomuser.me/api/portraits/men/10.jpg"
+      alt="Driver"
+      className="w-16 h-16 rounded-full object-cover"
+    />
+    <div className="text-sm">
+      <p className="text-gray-700 font-semibold">{reservation.driver}</p>
+      <p className="text-gray-500">Driver</p>
+    </div>
+  </div>
+
+  {/* Completed Status */}
+  <div className="bg-yellow-300 text-white px-3 py-2 border border-gray-200 text-xs rounded-full font-medium">
+    Pending
+  </div>
+</div>
 
         {/* Car Info and Image */}
         <div className="flex justify-between items-center p-6 bg-white border-t">
@@ -143,13 +152,13 @@ const ReservationDetails = () => {
         <div className="flex justify-center gap-6 py-4 bg-gray-50 border-t">
           <button
             onClick={openApproveModal}
-            className="bg-blue-500 text-white py-2 px-6 rounded-xl hover:bg-green-700 transition-all w-40"
+            className="bg-blue-500 text-white py-2 px-6 rounded-2xl hover:bg-blue-700 transition-all w-40"
           >
             Approve
           </button>
           <button
             onClick={openDeclineModal}
-            className="bg-red-600 text-white py-2 px-6 rounded-xl hover:bg-red-700 transition-all w-40"
+            className="bg-red-600 text-white py-2 px-6 rounded-2xl hover:bg-red-700 transition-all w-40"
           >
             Decline
           </button>
@@ -227,7 +236,8 @@ const ReservationDetails = () => {
     <div className="bg-white p-8 rounded-lg shadow-lg max-w-sm w-full">
       <div className="flex flex-col items-center justify-center mb-4">
         {/* Warning Icon */}
-        <CiWarning className="text-red-400  font-bold text-3xl mb-4" />
+
+        <TiWarning className="text-red-600  bg font-bold text-3xl mb-4" />
         <h2 className="text-xl font-medium text-gray-800">Are you sure you want to decline?</h2>
       </div>
       <div className="flex justify-between gap-4 mt-4">
