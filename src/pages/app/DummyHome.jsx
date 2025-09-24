@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { FaUsers, FaDollarSign, FaCalendarCheck, FaEdit, FaTrash, FaRegEye } from "react-icons/fa";
 import { Trash } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import Users from './Users'; // Import the Users component
+import DashboardUsers from '../../components/DashboardUsers';
 
 
 const DummyHome = () => {
@@ -118,70 +120,9 @@ const DummyHome = () => {
       </div>
 
       {/* User List */}
-      <div className="col-span-3 bg-white border border-gray-200 shadow-md rounded-xl overflow-hidden">
-        <h2 className="text-2xl font-medium text-gray-800 p-6">Users</h2>
-        <div className="overflow-x-auto">
-          <table className="min-w-full table-auto">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Profile</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Email</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Role</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Date Joined</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Last Login</th>
-                <th className="px-6 py-4 text-left text-sm font-medium text-gray-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-b hover:bg-gray-50 transition-all">
-                  <td className="px-6 py-4 text-sm text-gray-800 flex items-center gap-3">
-                    <img
-                      src={user.image || 'https://via.placeholder.com/40'}
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <span>{user.name}</span>
-                  </td>
+      
 
-                  <td className="px-6 py-4 text-sm text-gray-800">{user.email}</td>
-                  <td className="px-6 py-4 text-sm text-gray-800">{user.role}</td>
-                  <td className="px-6 py-4 text-sm text-gray-800">{user.dateJoined}</td>
-                  <td className="px-6 py-4 text-sm text-gray-800">{user.lastLogin}</td>
-
-                  <td className="px-6 py-4 text-sm text-gray-800">
-                    <div className="flex items-center justify-start gap-3">
-                                            <button
-                                                                    onClick={() => handleViewUser(user.id)}  // Navigate to user details page
-                                                                    aria-label="View"
-                                                                    className="flex items-center justify-center w-8 h-8 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition duration-200"
-                                                                  >
-                                                                    <FaRegEye />
-                                            
-                                                                  </button>
-{/*                       
-                      <button
-                        onClick={() => openEditModal(user)}
-                        aria-label="Edit"
-                        className="flex items-center justify-center w-8 h-8 rounded-md border border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white transition duration-200"
-                      >
-                        <FaEdit className="text-base" />
-                      </button> */}
-                      {/* <button
-                        onClick={() => openDeleteModal(user)}
-                        aria-label="Delete"
-                        className="flex items-center justify-center w-8 h-8 rounded-md border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition duration-200"
-                      >
-                        <FaTrash className="text-base" />
-                      </button> */}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <DashboardUsers/>
 
       {/* Edit User Modal */}
       {isEditModalOpen && currentUser && (

@@ -1,5 +1,6 @@
 import { NavLink } from "react-router";
 import { sidebarData } from "../../static/Sidebar";
+import { LogOut } from "lucide-react";
 
 const DummySidebar = () => {
   return (
@@ -21,8 +22,16 @@ const DummySidebar = () => {
             }>{sidebar?.icon}</div> 
             <span className="font-medium">{sidebar?.title}</span>
           </NavLink>
+
+          
         );
       })}
+       <a
+              href="/"
+              className="text-sm flex items-center gap-4 font-semibold px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-100 hover:text-[#0893F0] transition-all duration-200 ease-in-out"
+            >
+              <LogOut className="inline-block mr-2 ml-3 " /> Logout
+            </a>
     </div>
   );
 };

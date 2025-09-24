@@ -2,14 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { FaRegEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router';
 import { Plus, StickyNote } from 'lucide-react';
-import CreateUserModal from '../../components/user/CreateUserModal';
-import EditUserModal from '../../components/user/EditUserModal';
-import DeleteUserModal from '../../components/user/DeleteUserModal';
-import axios from '../../axios';
+import CreateUserModal from './user/CreateUserModal';
+import EditUserModal from './user/EditUserModal';
+import DeleteUserModal from './user/DeleteUserModal';
 import { AiOutlineDelete } from "react-icons/ai";
+import axios from "../axios"
 
-
-const Users = () => {
+const DashboardUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -63,12 +62,15 @@ const Users = () => {
   const totalPages = Math.ceil(totalUsers / 10);
 
   return (
-    <div className="col-span-3 p-6 pt-0">
+    <div className="col-span-3  pt-0">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl font-medium text-gray-800">Users</h2>
         </div>
-        <div className="flex gap-4">
+        <div>
+          <p className="text-sm font-medium text-blue-500">See All</p>
+        </div>
+        {/* <div className="flex gap-4">
           <button className="px-4 py-2 flex gap-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
             <StickyNote className="text-xs" /> Export CSV
           </button>
@@ -78,7 +80,7 @@ const Users = () => {
           >
             <Plus className="text-xs" /> Create User
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Render Users Table */}
@@ -144,8 +146,7 @@ const Users = () => {
       )}
 
       {/* Pagination Controls */}
-    <div className="flex justify-end items-center mt-6 space-x-4">
-  {/* Previous Button */}
+    {/* <div className="flex justify-end items-center mt-6 space-x-4">
   <button
     disabled={currentPage <= 1}
     onClick={() => setCurrentPage(currentPage - 1)}
@@ -154,12 +155,10 @@ const Users = () => {
     <span className="mr-2">Prev</span>
   </button>
 
-  {/* Page Info */}
   <span className="text-sm text-gray-600">
     Page {currentPage} of {totalPages}
   </span>
 
-  {/* Next Button */}
   <button
     disabled={currentPage >= totalPages}
     onClick={() => setCurrentPage(currentPage + 1)}
@@ -167,7 +166,7 @@ const Users = () => {
   >
     <span className="ml-2">Next</span>
   </button>
-</div>
+</div> */}
 
 
       {/* Modals */}
@@ -178,4 +177,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default DashboardUsers;

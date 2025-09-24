@@ -23,7 +23,7 @@ const DummyNavbar = () => {
           />
 
           {/* Hovered Profile Options */}
-          <div className="absolute right-0 w-40 mt-2 hidden group-hover:block bg-white shadow-lg rounded-lg py-2 text-gray-600 text-sm transition-all duration-200">
+          {/* <div className="absolute right-0 w-40 mt-2 hidden group-hover:block bg-white shadow-lg rounded-lg py-2 text-gray-600 text-sm transition-all duration-200">
             <a
               href="#"
               className="block px-4 py-2 hover:bg-gray-100 rounded-md transition-all duration-200"
@@ -31,12 +31,12 @@ const DummyNavbar = () => {
               Profile
             </a>
             <a
-              href="#"
+              href="/"
               className="block px-4 py-2 hover:bg-gray-100 rounded-md transition-all duration-200"
             >
               Logout
             </a>
-          </div>
+          </div> */}
         </div>
 
         {/* Dropdown Indicator Icon */}
