@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaUsers } from "react-icons/fa";
 import axios from "../../axios"; // Import axios instance
 import { ErrorToast, SuccessToast } from "../../components/global/Toaster"; // Import your toaster functions
-import AddCarModal from "../../components/AddcarModal"; // Import the AddCarModal component
+import AddCarModal from "../../components/AddCarModal"; // Import the AddCarModal component
 import CustomLoader from "../../components/global/CustomLoader"; // Import the CustomLoader component
 
 const Inventory = () => {
