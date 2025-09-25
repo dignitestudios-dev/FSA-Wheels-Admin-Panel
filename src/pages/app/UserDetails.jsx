@@ -1,101 +1,154 @@
-// src/pages/UserDetailsPage.js
-import React from 'react';
-import { Link } from 'react-router';
-
-const user = { 
-  id: 1, 
-  name: "John Doe", 
-  email: "johndoe@example.com", 
-  role: "Admin", 
-  dateJoined: "2021-05-10", 
-  lastLogin: "2022-07-14", 
-  image: "https://randomuser.me/api/portraits/men/10.jpg",
-  sos: {
-    emergencyContact: "Jane Doe (Sister)",
-    contactNumber: "+1234567890",
-    isSOSActive: false,
-  },
-  rideHistory: [
-    {
-      rideDate: "2023-08-15",
-      location: "New York, NY to Boston, MA",
-      price: "$120.00",
-      driverName: "Alice Smith",
-    },
-    {
-      rideDate: "2023-09-01",
-      location: "Chicago, IL to Detroit, MI",
-      price: "$85.00",
-      driverName: "Bob Johnson",
-    },
-    {
-      rideDate: "2023-09-10",
-      location: "Los Angeles, CA to San Francisco, CA",
-      price: "$150.00",
-      driverName: "Charlie Brown",
-    }
-  ]
-};
+import { ArrowLeft } from 'lucide-react';
+import React, { use } from 'react';
+import { useLocation, useNavigate } from 'react-router';
 
 const UserDetails = () => {
+  const { state } = useLocation();
+  const navigate = useNavigate();
+  const user = state?.user;
+
+  if (!user) {
+    return (
+      <div className="p-6">
+        <p className="text-red-500">
+          No user data found.{' '}
+          <button className="text-blue-600 underline" onClick={() => navigate(-1)}>Go back</button>
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto p-6 pt-0">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold text-gray-900">User Details</h2>
-        {/* <Link to="/" className="text-blue-600 hover:text-blue-700 text-lg">Back to Users</Link> */}
+    <div className="container mx-auto p-6 pt-0 space-y-8">
+      {/* Header */}
+      <div className="flex items-center ">
+         {/* <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-md font-medium"
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </button> */}
+        <h2 className="text-3xl font-bold text-gray-900">User Profile</h2>
       </div>
 
-      <div className="bg-white p-8 rounded-xl shadow  border border-gray-200">
-        <div className="flex items-center gap-8 mb-8">
+      {/* Main Card */}
+      <div className="bg-white rounded-xl  border border-gray-200 p-6">
+        {/* Profile Header */}
+        <div className="flex flex-col md:flex-row gap-8 items-center md:items-start border-b pb-6 mb-6">
           <img
-            src={user.image || 'https://via.placeholder.com/100'}
+            src={user.profilePicture || 'https://via.placeholder.com/150'}
             alt={user.name}
-            className="w-32 h-32 rounded-full object-cover border-4 border-gray-200 shadow-lg"
+            className="w-36 h-36 rounded-full object-cover border-4 border-gray-300 shadow-md"
           />
+          <div className="space-y-2">
+            <h3 className="text-3xl font-semibold text-gray-900">{user.name}</h3>
+            <p className="text-gray-600">{user.email}</p>
+            <div className="flex flex-wrap gap-4 mt-2 text-sm">
+              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Supervisor: {user.supervisor || 'N/A'}</span>
+              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">Membership: {user.membershipNumber || 'N/A'}</span>
+              <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Created: {new Date(user.createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Two-Column Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Contact Info */}
           <div>
-            <h3 className="text-3xl font-semibold text-gray-800">{user.name}</h3>
-            <p className="text-sm text-gray-600">{user.email}</p>
-            <p className="text-sm text-gray-600">Role: {user.role}</p>
-            <p className="text-sm text-gray-600">Joined: {user.dateJoined}</p>
-            <p className="text-sm text-gray-600">Last Login: {user.lastLogin}</p>
+            <h4 className="text-xl font-semibold mb-3 text-gray-800">Contact Information</h4>
+            <ul className="space-y-2 text-sm text-gray-700">
+              <li><strong>Work Contact:</strong> {user.workContactNumber || 'N/A'}</li>
+              <li><strong>Personal Contact:</strong> {user.personalContactNumber || 'N/A'}</li>
+              <li><strong>Address:</strong> {user.address || 'N/A'}</li>
+              <li>
+                <strong>Notifications:</strong>{' '}
+                <span className={`font-medium ${user.isNotificationEnabled ? 'text-green-600' : 'text-red-500'}`}>
+                  {user.isNotificationEnabled ? 'Enabled' : 'Disabled'}
+                </span>
+              </li>
+            </ul>
+          </div>
+
+          {/* Location Info */}
+          <div>
+            <h4 className="text-xl font-semibold mb-3 text-gray-800">Location</h4>
+<ul className="space-y-2 text-sm text-gray-700">
+  {user.location?.coordinates?.length === 2 ? (
+    <div>
+    <li>
+      <button
+        onClick={() => {
+          const lat = user.location.coordinates[1];
+          const lng = user.location.coordinates[0];
+          const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+          window.open(googleMapsUrl, '_blank');
+        }}
+        className="text-blue-600 underline hover:text-blue-800"
+      >
+        View Location on Google Maps
+      </button>
+    </li>
+    <div className='flex gap-1 mt-2'>
+    <li className='font-bold'>Address: </li><span>{user?.address || 'N/A'}</span>
+    </div>
+    </div>
+  ) : (
+    <li>Location: N/A</li>
+  )}
+</ul>
+
           </div>
         </div>
 
-        <div className="bg-gray-100 p-6 rounded-lg mb-6">
-          <h4 className="text-xl font-semibold text-gray-800 mb-4">SOS Information</h4>
-          <div className="text-sm text-gray-700">
-            <p><span className="font-semibold">Emergency Contact:</span> {user.sos.emergencyContact}</p>
-            <p><span className="font-semibold">Contact Number:</span> {user.sos.contactNumber}</p>
-            <p><span className="font-semibold">SOS Status:</span> {user.sos.isSOSActive ? "Active" : "Inactive"}</p>
+        {/* Divider */}
+        <hr className="my-6" />
+
+        {/* Documents */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {/* Driving License */}
+          <div>
+            <h4 className="text-xl font-semibold  text-gray-800">Driving License</h4>
+            <p className="text-sm text-gray-700 mb-2">License #: {user.drivingLicenseNumber || 'N/A'}</p>
+            <div className="flex gap-4">
+              {user.drivingLicenseFrontImage ? (
+                <img src={user.drivingLicenseFrontImage} alt="Front" className="w-36 h-24 object-cover border rounded-lg" />
+              ) : (
+                <div className="text-sm text-gray-500">No front image</div>
+              )}
+              {user.drivingLicenseBackImage ? (
+                <img src={user.drivingLicenseBackImage} alt="Back" className="w-36 h-24 object-cover border rounded-lg" />
+              ) : (
+                <div className="text-sm text-gray-500">No back image</div>
+              )}
+            </div>
+          </div>
+
+          {/* Insurance */}
+          <div>
+            <h4 className="text-xl font-semibold  text-gray-800">Insurance</h4>
+            <p className="text-sm text-gray-700 mb-2">Company: {user.insuranceCompany || 'N/A'}</p>
+            {user.insuranceCertificateImage ? (
+              <img src={user.insuranceCertificateImage} alt="Insurance" className="w-40 h-28 object-cover border rounded-lg" />
+            ) : (
+              <div className="text-sm text-gray-500">No certificate image</div>
+            )}
           </div>
         </div>
 
-        <div className="mb-6">
-          <h4 className="text-xl font-semibold text-gray-800 mb-4">Ride History</h4>
-          {user.rideHistory.length > 0 ? (
-            <table className="min-w-full bg-white border border-gray-200  shadow">
-              <thead>
-                <tr className="text-left">
-                  <th className="px-6 py-3 text-gray-800">Ride Date</th>
-                  <th className="px-6 py-3 text-gray-800">Location</th>
-                  <th className="px-6 py-3 text-gray-800">Price</th>
-                  <th className="px-6 py-3 text-gray-800">Driver</th>
-                </tr>
-              </thead>
-              <tbody>
-                {user.rideHistory.map((ride, index) => (
-                  <tr key={index} className="border-t hover:bg-gray-50">
-                    <td className="px-6 py-4">{ride.rideDate}</td>
-                    <td className="px-6 py-4">{ride.location}</td>
-                    <td className="px-6 py-4">{ride.price}</td>
-                    <td className="px-6 py-4">{ride.driverName}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p className="text-gray-600">No ride history available.</p>
-          )}
+        {/* Stats */}
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 ">
+          <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+            <h5 className="text-sm text-gray-500 font-medium">Total Rides</h5>
+            <p className="text-3xl font-bold text-blue-700">{user.totalRides}</p>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+            <h5 className="text-sm text-gray-500 font-medium">Current Reservations</h5>
+            <p className="text-3xl font-bold text-green-700">{user.totalCurrentReservations}</p>
+          </div>
+          <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
+            <h5 className="text-sm text-gray-500 font-medium">Ride Cancellations</h5>
+            <p className="text-3xl font-bold text-red-600">{user.totalRideCancellations}</p>
+          </div>
         </div>
       </div>
     </div>

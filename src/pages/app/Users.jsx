@@ -58,7 +58,7 @@ const Users = () => {
     setIsDeleteModalOpen(false);
   };
 
-  const handleViewUser = (userId) => navigate(`/app/user-details`);
+const handleViewUser = (user) => navigate(`/app/user-details`, { state: { user } });
 
   const totalPages = Math.ceil(totalUsers / 10);
 
@@ -83,7 +83,40 @@ const Users = () => {
 
       {/* Render Users Table */}
       {loading ? (
-        <div>Loading...</div>
+        <div>
+  <tbody>
+  {Array.from({ length: 5 }).map((_, index) => (
+    <tr key={index} className="border-b w-full animate-pulse">
+      <td className="w-full py-4 px-4">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 bg-gray-300 rounded-full" />
+          <div className="h-4 bg-gray-300 rounded w-24" />
+        </div>
+      </td>
+      <td className="py-4 px-4">
+        <div className="h-4 bg-gray-300 rounded w-40" />
+      </td>
+      <td className="py-4 px-4">
+        <div className="h-4 bg-gray-300 rounded w-32" />
+      </td>
+      <td className="py-4 px-4">
+        <div className="h-4 bg-gray-300 rounded w-28" />
+      </td>
+      <td className="py-4 px-4">
+        <div className="h-4 bg-gray-300 rounded w-20" />
+      </td>
+      <td className="py-4 px-4">
+        <div className="flex gap-3">
+          <div className="h-8 w-8 bg-gray-300 rounded-md" />
+          <div className="h-8 w-8 bg-gray-300 rounded-md" />
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
+
+
+</div>
       ) : (
         <div className="overflow-x-auto bg-white shadow-md rounded-lg">
           <table className="w-full text-left table-auto">
@@ -121,12 +154,13 @@ const Users = () => {
                         Edit
                       </button> */}
 
-                      <button
-                        onClick={() => openEditModal(user)}
-                        className="px-3 py-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white border rounded-md"
-                      >
-                                                                    <FaRegEye />
-                      </button>
+                       <button
+                       onClick={() => handleViewUser(user)}
+                       className="px-3 py-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white border rounded-md"
+                     >
+                       <FaRegEye />
+                     </button>
+
                       <button
                         onClick={() => openDeleteModal(user)}
                         className="px-3 py-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white border rounded-md"
