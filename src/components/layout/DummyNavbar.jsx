@@ -16,11 +16,11 @@ const DummyNavbar = () => {
         {/* User Avatar with Hover Effect */}
         
         <div className="relative group">
-          <img
+          {/* <img
             src={Logo} // Replace with actual user avatar
             alt="user-avatar"
             className="w-10 h-10 object-contain cursor-pointer rounded-full border-2 border-gray-300 transition-transform duration-300 ease-in-out transform group-hover:scale-110"
-          />
+          /> */}
 
           {/* Hovered Profile Options */}
           {/* <div className="absolute right-0 w-40 mt-2 hidden group-hover:block bg-white shadow-lg rounded-lg py-2 text-gray-600 text-sm transition-all duration-200">

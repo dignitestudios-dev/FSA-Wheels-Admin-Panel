@@ -35,11 +35,22 @@ const UserDetails = () => {
       <div className="bg-white rounded-xl  border border-gray-200 p-6">
         {/* Profile Header */}
         <div className="flex flex-col md:flex-row gap-8 items-center md:items-start border-b pb-6 mb-6">
-          <img
-            src={user.profilePicture || 'https://via.placeholder.com/150'}
-            alt={user.name}
-            className="w-36 h-36 rounded-full object-cover border-4 border-gray-300 shadow-md"
-          />
+          {user.profilePicture ? (
+    <img
+      src={user.profilePicture}
+      alt={user.name}
+      className="w-36 h-36 rounded-full object-cover"
+    />
+  ) : (
+    <div className="w-36 h-36 rounded-full bg-blue-500 flex items-center justify-center text-white text-6xl">
+      {user.name
+        .split(' ')
+        .map((word) => word[0])
+        .slice(0, 2) // Get the initials (first 2 letters)
+        .join('')
+        .toUpperCase()}
+    </div>
+  )}
           <div className="space-y-2">
             <h3 className="text-3xl font-semibold text-gray-900">{user.name}</h3>
             <p className="text-gray-600">{user.email}</p>
@@ -139,15 +150,15 @@ const UserDetails = () => {
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 ">
           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
             <h5 className="text-sm text-gray-500 font-medium">Total Rides</h5>
-            <p className="text-3xl font-bold text-blue-700">{user.totalRides}</p>
+            <p className="text-3xl font-bold text-gray-500">{user.totalRides}</p>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
             <h5 className="text-sm text-gray-500 font-medium">Current Reservations</h5>
-            <p className="text-3xl font-bold text-green-700">{user.totalCurrentReservations}</p>
+            <p className="text-3xl font-bold text-gray-500">{user.totalCurrentReservations}</p>
           </div>
           <div className="bg-gray-50 rounded-xl p-4 text-center border border-gray-200">
             <h5 className="text-sm text-gray-500 font-medium">Ride Cancellations</h5>
-            <p className="text-3xl font-bold text-red-600">{user.totalRideCancellations}</p>
+            <p className="text-3xl font-bold text-gray-500">{user.totalRideCancellations}</p>
           </div>
         </div>
       </div>

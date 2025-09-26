@@ -67,9 +67,9 @@ const handleViewUser = (user) => navigate(`/app/user-details`, { state: { user }
         <div>
           <h2 className="text-2xl font-medium text-gray-800">Users</h2>
         </div>
-        <div>
+        {/* <div>
           <p className="text-sm font-medium text-blue-500">See All</p>
-        </div>
+        </div> */}
         {/* <div className="flex gap-4">
           <button className="px-4 py-2 flex gap-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">
             <StickyNote className="text-xs" /> Export CSV
@@ -133,15 +133,26 @@ const handleViewUser = (user) => navigate(`/app/user-details`, { state: { user }
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
+               {users.map((user) => (
                 <tr key={user._id} className="border-b hover:bg-gray-50 transition-all">
-                  <td className="py-4 px-4 text-sm text-gray-800 flex items-center gap-3">
-                    <img
-                      src={user.profilePicture || 'https://via.placeholder.com/40'}
-                      alt={user.name}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                    <span>{user.name}</span>
+                 <td className="py-4 px-4 text-sm text-gray-800 flex items-center gap-3">
+  {user.profilePicture ? (
+    <img
+      src={user.profilePicture}
+      alt={user.name}
+      className="w-12 h-12 rounded-full object-cover"
+    />
+  ) : (
+    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm">
+      {user.name
+        .split(' ')
+        .map((word) => word[0])
+        .slice(0, 2) // Get the initials (first 2 letters)
+        .join('')
+        .toUpperCase()}
+    </div>
+  )}
+  <span>{user.name}</span>
                   </td>
                   <td className="py-2 px-4 text-sm text-gray-800">{user.email}</td>
                   <td className="py-2 px-4 text-sm text-gray-800">{user.address || 'Not Available'}</td>
@@ -163,13 +174,13 @@ const handleViewUser = (user) => navigate(`/app/user-details`, { state: { user }
   <FaRegEye />
 </button>
 
-                      <button
+                      {/* <button
                         onClick={() => openDeleteModal(user)}
                         className="px-3 py-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white border rounded-md"
                       >
                         <AiOutlineDelete className='text-md' />
 
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>

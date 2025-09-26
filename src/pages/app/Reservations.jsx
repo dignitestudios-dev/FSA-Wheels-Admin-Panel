@@ -39,23 +39,22 @@ const Reservations = () => {
   const handleTabChange = (tab) => {
     setActiveTab(tab);
   };
-
-  const handleCardClick = (reservationId) => {
-    if (activeTab === "completed") {
-      navigate(`/app/reservation-completed`);
-    } else {
-      navigate(`/app/reservation-details`);
-    }
-  };
+const handleCardClick = (reservation) => {
+  if (activeTab === "completed") {
+    navigate(`/app/reservation-completed`, { state: reservation });
+  } else {
+    navigate(`/app/reservation-details`, { state: reservation });
+  }
+};
 
   return (
     <div className="p-6 pt-0 space-y-6">
       {/* Tabs */}
       <div className="flex justify-between space-x-4 border-b pb-4">
         <div>
-          <h1 className="text-2xl font-semibold text-gray-800 pt-3">Reservations</h1>
+          <h1 className="text-2xl font-semibold text-gray-800 pt-3">Pending Reservations</h1>
         </div>
-        <div>
+        {/* <div>
           <button
             onClick={() => handleTabChange("requested")}
             className={`py-2 px-4 text-lg font-semibold ${
@@ -86,7 +85,7 @@ const Reservations = () => {
           >
             Completed
           </button>
-        </div>
+        </div> */}
       </div>
 
       {/* Content */}
@@ -105,17 +104,31 @@ const Reservations = () => {
             <div
               key={reservation._id}
               className="bg-white border border-gray-200 rounded-xl shadow-lg hover:shadow-2xl transition-all p-6 flex flex-col cursor-pointer"
-              onClick={() => handleCardClick(reservation._id)}
+              onClick={() => handleCardClick(reservation)}
             >
               {/* Driver Info */}
               <div className="flex items-center gap-3">
-                <img
-                  src="https://randomuser.me/api/portraits/men/10.jpg"
-                  alt="Driver"
-                  className="w-10 h-10 rounded-full object-contain"
-                />
-                <span className="text-sm font-semibold text-gray-800">Driver Name</span>
-              </div>
+  {reservation?.user?.profilePicture ? (
+    <img
+      src={reservation.user.profilePicture}
+      alt={reservation?.user?.name || 'User'}
+      className="w-10 h-10 rounded-full object-contain"
+    />
+  ) : (
+    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
+      {reservation?.user?.name
+        ?.split(' ')
+        .map(word => word[0])
+        .slice(0, 2)
+        .join('')
+        .toUpperCase()}
+    </div>
+  )}
+  <span className="text-sm font-semibold text-gray-800">
+    {reservation?.user?.name}
+  </span>
+</div>
+
 
               {/* Vehicle Info */}
               <div className="flex justify-between items-center mt-4">
@@ -149,12 +162,14 @@ const Reservations = () => {
 
               {/* Bottom Info */}
               <div className="flex justify-between items-center mt-4 border-t pt-4">
-                <div>
+                {/* <div>
                   <p className="text-xs text-gray-500">Participant Name</p>
                   <p className="font-semibold text-gray-800">John Doe</p>
-                </div>
+                </div> */}
+                <div>                  <p className=" font-semibold text-gray-500">Status</p>
+</div>
                 <div className="text-right">
-                  <p className="text-xs text-gray-500">Status</p>
+                  {/* <p className="text-xs text-gray-500">Status</p> */}
                   <p className="font-semibold text-gray-800">
                     {reservation.isCurrentReservation ? "Ongoing" : "Pending"}
                   </p>
@@ -169,3 +184,4 @@ const Reservations = () => {
 };
 
 export default Reservations;
+  

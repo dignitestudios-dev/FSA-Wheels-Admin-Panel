@@ -1,107 +1,62 @@
-import { Route, Routes } from "react-router";
-import "./App.css";
+import { Navigate, Route, Routes } from "react-router";
+// import "./App.css";
 import DashboardLayout from "./layouts/DashboardLayout";
-import DummyHome from "./pages/app/DummyHome";
-// import DummyLogin from "./pages/authentication/DummyLogin";
 import AuthLayout from "./layouts/AuthLayout";
+
+// App Pages
+import DummyHome from "./pages/app/DummyHome";
 import Inventory from "./pages/app/Inventory";
 import Users from "./pages/app/Users";
 import Reservations from "./pages/app/Reservations";
 import CreateUser from "./pages/app/CreateUser";
 import Notifications from "./pages/app/Notifications";
 import ReservationDetails from "./pages/app/ReservationDetails";
-import DummyLogin from "./pages/authentication/DummyLogin";
 import ReservationCompleted from "./pages/app/ReservationCompleted";
+import UserDetails from "./pages/app/UserDetails";
+
+// Auth Pages
+import DummyLogin from "./pages/authentication/DummyLogin";
 import ForgotPassword from "./pages/authentication/ForgotPassword";
 import ResetPassword from "./pages/authentication/ResetPassword";
 import Verification from "./pages/authentication/Verification";
-import UserDetails from "./pages/app/UserDetails";
+
+// Route Guard
+import ProtectedRoutes from "./routes/ProtectedRoutes";
 
 function App() {
   return (
     <Routes>
-      {/* <Route
-        path="/"
+      {/* 🔐 Protected App Routes */}
+      <Route element={<ProtectedRoutes />}>
         <Route path="app" element={<DashboardLayout />}>
-        <Route path="/" element={<DummyHome />} />
-      </Route>
-      /> */}
-
-      <Route path="app" element={<DashboardLayout />}>
-        <Route path="dashboard" element={<DummyHome />} />
-      </Route>  
-
-       <Route element={<AuthLayout />}>
-        <Route path="/" element={<DummyLogin />} />
-      </Route>
-
-    
-
-      <Route path="app" element={<DashboardLayout />}>
-        <Route path="inventory" element={<Inventory />} />
+          <Route path="dashboard" element={<DummyHome />} />
+          <Route path="inventory" element={<Inventory />} />
+          <Route path="users" element={<Users />} />
+          <Route path="user-details" element={<UserDetails />} />
+          <Route path="create-user" element={<CreateUser />} />
+          <Route path="reservations" element={<Reservations />} />
+          <Route path="reservation-details" element={<ReservationDetails />} />
+          <Route path="reservation-completed" element={<ReservationCompleted />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
       </Route>
 
-      <Route path="app" element={<DashboardLayout />}>
-        <Route path="users" element={<Users />} />
-      </Route>
-
-
- <Route path="app" element={<DashboardLayout />}>
-        <Route path="user-details" element={<UserDetails />} />
-      </Route>
-
-       <Route path="app" element={<DashboardLayout />}>
-        <Route path="create-user" element={<CreateUser />} />
-      </Route>
-
-
-        <Route path="app" element={<DashboardLayout />}>
-        <Route path="reservation-details" element={<ReservationDetails />} />
-      </Route>
-
-
-        <Route path="app" element={<DashboardLayout />}>
-        <Route path="reservation-completed" element={<ReservationCompleted />} />
-      </Route>
-
-       <Route path="app" element={<DashboardLayout />}>
-        <Route path="notifications" element={<Notifications />} />
-      </Route>
-
-      
-
-
-      
-
-
-  <Route path="app" element={<DashboardLayout />}>
-        <Route path="reservations" element={<Reservations />} />
-      </Route>
-{/* 
+      {/* 🔓 Public Auth Routes */}
       <Route path="auth" element={<AuthLayout />}>
         <Route path="login" element={<DummyLogin />} />
-      </Route> */}
-
-       <Route path="auth" element={<AuthLayout />}>
         <Route path="forgot-password" element={<ForgotPassword />} />
-      </Route>
-
-
-       <Route path="auth" element={<AuthLayout />}>
-        <Route path="forgot-password" element={<ForgotPassword />} />
-      </Route>
-
-      <Route path="auth" element={<AuthLayout />}>
         <Route path="reset-password" element={<ResetPassword />} />
-      </Route>
-
-     <Route path="auth" element={<AuthLayout />}>
         <Route path="verification" element={<Verification />} />
       </Route>
 
+      {/* Redirect root to login */}
+
+      <Route path="/" element={<Navigate to="/auth/login" />} />
+
+      {/* 404 Fallback */}
       <Route
         path="*"
-        element={<div className="text-7xl">Page Not Found</div>}
+        element={<div className="text-7xl text-center mt-10">Page Not Found</div>}
       />
     </Routes>
   );
