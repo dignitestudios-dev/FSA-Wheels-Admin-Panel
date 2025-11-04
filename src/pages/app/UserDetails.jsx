@@ -34,7 +34,7 @@ const UserDetails = () => {
       {/* Main Card */}
       <div className="bg-white rounded-xl  border border-gray-200 p-6">
         {/* Profile Header */}
-        <div className="flex flex-col md:flex-row gap-8 items-center md:items-start border-b pb-6 mb-6">
+        <div className="flex flex-col md:flex-row gap-8 items-center md:items-start border-b pb-6 mb-6 bg-gray-50 rounded-xl p-4 text-start border border-gray-200">
           {user.profilePicture ? (
     <img
       src={user.profilePicture}
@@ -51,8 +51,8 @@ const UserDetails = () => {
         .toUpperCase()}
     </div>
   )}
-          <div className="space-y-2">
-            <h3 className="text-3xl font-semibold text-gray-900">{user.name}</h3>
+          <div className="space-y-2 ">
+            <h3 className="text-3xl font-semibold text-gray-900 mt-6">{user.name}</h3>
             <p className="text-gray-600">{user.email}</p>
             <div className="flex flex-wrap gap-4 mt-2 text-sm">
               <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Supervisor: {user.supervisor || 'N/A'}</span>
@@ -65,23 +65,23 @@ const UserDetails = () => {
         {/* Two-Column Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Contact Info */}
-          <div>
+          <div className='bg-gray-50 rounded-xl p-4 text-start border border-gray-200'>
             <h4 className="text-xl font-semibold mb-3 text-gray-800">Contact Information</h4>
             <ul className="space-y-2 text-sm text-gray-700">
               <li><strong>Work Contact:</strong> {user.workContactNumber || 'N/A'}</li>
               <li><strong>Personal Contact:</strong> {user.personalContactNumber || 'N/A'}</li>
-              <li><strong>Address:</strong> {user.address || 'N/A'}</li>
-              <li>
+              {/* <li><strong>Address:</strong> {user.address || 'N/A'}</li> */}
+              {/* <li>
                 <strong>Notifications:</strong>{' '}
                 <span className={`font-medium ${user.isNotificationEnabled ? 'text-green-600' : 'text-red-500'}`}>
                   {user.isNotificationEnabled ? 'Enabled' : 'Disabled'}
                 </span>
-              </li>
+              </li> */}
             </ul>
           </div>
 
           {/* Location Info */}
-          <div>
+          <div className='bg-gray-50 rounded-xl p-4 text-start border border-gray-200'>
             <h4 className="text-xl font-semibold mb-3 text-gray-800">Location</h4>
 <ul className="space-y-2 text-sm text-gray-700">
   {user.location?.coordinates?.length === 2 ? (
@@ -117,7 +117,7 @@ const UserDetails = () => {
         {/* Documents */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Driving License */}
-          <div>
+          <div className='bg-gray-50 rounded-xl p-4 text-start border border-gray-200'>
             <h4 className="text-xl font-semibold  text-gray-800">Driving License</h4>
             <p className="text-sm text-gray-700 mb-2">License #: {user.drivingLicenseNumber || 'N/A'}</p>
             <div className="flex gap-4">
@@ -135,7 +135,7 @@ const UserDetails = () => {
           </div>
 
           {/* Insurance */}
-          <div>
+          <div className='bg-gray-50 rounded-xl p-4 text-start border border-gray-200'>
             <h4 className="text-xl font-semibold  text-gray-800">Insurance</h4>
             <p className="text-sm text-gray-700 mb-2">Company: {user.insuranceCompany || 'N/A'}</p>
             {user.insuranceCertificateImage ? (
@@ -145,6 +145,9 @@ const UserDetails = () => {
             )}
           </div>
         </div>
+
+                <hr className="my-6" />
+
 
         {/* Stats */}
         <div className="mt-10 grid grid-cols-1 sm:grid-cols-3 gap-6 ">

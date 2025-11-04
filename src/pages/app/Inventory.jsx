@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers } from "react-icons/fa";
+import { FaUsers, FaTrash } from "react-icons/fa";
 import axios from "../../axios"; // Import axios instance
 import { ErrorToast, SuccessToast } from "../../components/global/Toaster"; // Import your toaster functions
 import AddCarModal from "../../components/AddCarModal"; // Import the AddCarModal component
@@ -9,20 +9,18 @@ const Inventory = () => {
   const [cars, setCars] = useState([]);
   const [newCar, setNewCar] = useState({
     name: "",
-    make: '',       // ✅ New
-    model: '',
+    make: "",
+    model: "",
     type: "",
     passengers: "",
     images: [],
   });
 
-
-
-
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(true); // Fetching state for custom skeleton loader
+  const [deleteCarId, setDeleteCarId] = useState(null); // Store car id for deletion
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Show/hide delete confirmation modal
 
   const fetchCars = async () => {
     try {
@@ -44,6 +42,7 @@ const Inventory = () => {
     fetchCars();
   }, []);
 
+  // Handle input changes for Add Car Modal
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewCar((prevCar) => ({
@@ -52,6 +51,7 @@ const Inventory = () => {
     }));
   };
 
+  // Handle file change for image upload
   const handleFileChange = (e) => {
     const file = e.target.files[0]; // Only take the first file (single image)
     if (file) {
@@ -62,6 +62,7 @@ const Inventory = () => {
     }
   };
 
+  // Handle remove image (if applicable)
   const handleRemoveImage = (index) => {
     const updatedImages = newCar.images.filter((_, i) => i !== index);
     setNewCar((prevCar) => ({
@@ -96,7 +97,7 @@ const Inventory = () => {
       if (response.data.success) {
         SuccessToast("Vehicle added successfully!");
         setIsModalOpen(false);
-        setNewCar({ name: "", make: '', model: '', type: "", passengers: "", images: [] });
+        setNewCar({ name: "", make: "", model: "", type: "", passengers: "", images: [] });
         fetchCars();
       } else {
         // Handle validation errors or general errors
@@ -117,14 +118,33 @@ const Inventory = () => {
     }
   };
 
+  const handleDeleteCar = async () => {
+    if (!deleteCarId) return;
+
+    setLoading(true);
+
+    try {
+      const response = await axios.delete(`/vehicles/${deleteCarId}`);
+      if (response.data.success) {
+        SuccessToast("Vehicle deleted successfully!");
+        setCars((prevCars) => prevCars.filter((car) => car._id !== deleteCarId));
+      } else {
+        ErrorToast("Failed to delete vehicle.");
+      }
+    } catch (error) {
+      console.error("Error deleting vehicle:", error);
+      ErrorToast("An error occurred while deleting the vehicle.");
+    } finally {
+      setLoading(false);
+      setShowDeleteModal(false); // Close the delete modal
+    }
+  };
 
   return (
     <div>
-       {/* Header with Button */}
+      {/* Header with Button */}
       <div className="p-6 pt-0 col-span-3 flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          Inventory Management
-        </h1>
+        <h1 className="text-2xl font-semibold text-gray-800">Inventory Management</h1>
         <button
           onClick={() => setIsModalOpen(true)}
           className="bg-blue-600 text-white py-2 px-6 rounded-xl shadow-md hover:bg-blue-700"
@@ -132,61 +152,99 @@ const Inventory = () => {
           Add Inventory
         </button>
       </div>
-  {isFetching ? (
-    // Display Custom Skeleton Loader while fetching data
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-6 pt-0">
-      {Array.from({ length: 8 }).map((_, index) => (
-        <CustomLoader key={index} />
-      ))}
-    </div>
-  ) : (
-    <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-     
 
-      {/* Car Cards */}
-      {cars.map((car) => (
-        <div
-          key={car._id}
-          className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-lg"
-        >
-          {/* Car Image */}
-          <img
-            src={car.image}
-            alt={car.vehicleName}
-            className="w-full h-48 object-cover rounded-t-xl"
-          />
+         {isFetching ? (
+        // Display Custom Skeleton Loader while fetching data
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-6 pt-0">
+          {Array.from({ length: 8 }).map((_, index) => (
+            <CustomLoader key={index} />
+          ))}
+        </div>
+      ) : cars.length === 0 ? (
+        // Show "No inventory available" if no cars are fetched
+        <div className="p-6 text-center text-gray-500 ">
+          No inventory available
+        </div>
+      ) : (
+        <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          {/* Car Cards */}
+          {cars.map((car) => (
+            <div
+              key={car._id}
+              className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-lg relative"
+            >
+              {/* Delete Button */}
+              <button
+                onClick={() => {
+                  setDeleteCarId(car._id);
+                  setShowDeleteModal(true);
+                }}
+                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-xl"
+              >
+                <FaTrash />
+              </button>
 
-          {/* Car Details */}
-          <div className="p-4 flex flex-col space-y-3">
-            <h2 className="text-2xl font-semibold text-gray-900">
-              {car.vehicleName}
-            </h2>
-            <div className="flex items-center justify-between text-sm text-gray-600">
-              <p className="font-medium text-gray-500">{car.vehicleType}</p>
-              <div className="flex items-center gap-2">
-                <FaUsers className="text-blue-600 text-lg" />
-                <span>{car.seats}</span>
+              {/* Car Image */}
+              <img
+                src={car.image}
+                alt={car.vehicleName}
+                className="w-full h-48 object-cover rounded-t-xl"
+              />
+
+              {/* Car Details */}
+              <div className="p-4 flex flex-col space-y-3">
+                <h2 className="text-2xl font-semibold text-gray-900">{car.vehicleName}</h2>
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <p className="font-medium text-gray-500">{car.vehicleType}</p>
+                  <div className="flex items-center gap-2">
+                    <FaUsers className="text-blue-600 text-lg" />
+                    <span>{car.seats}</span>
+                  </div>
+                </div>
               </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-lg p-6 w-80">
+            <h3 className="text-xl font-semibold text-gray-800">Are you sure?</h3>
+            <p className="text-sm text-gray-600 my-4">
+              Do you really want to delete this vehicle? This action cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="bg-gray-400 text-white py-2 px-4 rounded-md"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteCar}
+                className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700"
+              >
+                {loading ? "Deleting..." : "Delete"}
+              </button>
             </div>
           </div>
         </div>
-      ))}
+      )}
+
+      {/* Modal should be outside conditional rendering to prevent issues */}
+      <AddCarModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        newCar={newCar}
+        handleInputChange={handleInputChange}
+        handleFileChange={handleFileChange}
+        handleRemoveImage={handleRemoveImage}
+        handleAddCar={handleAddCar}
+        loading={loading}
+      />
     </div>
-  )}
-
-  {/* Modal should be outside conditional rendering to prevent issues */}
-  <AddCarModal
-    isOpen={isModalOpen}
-    onClose={() => setIsModalOpen(false)}
-    newCar={newCar}
-    handleInputChange={handleInputChange}
-    handleFileChange={handleFileChange}
-    handleRemoveImage={handleRemoveImage}
-    handleAddCar={handleAddCar}
-    loading={loading}
-  />
-</div>
-
   );
 };
 

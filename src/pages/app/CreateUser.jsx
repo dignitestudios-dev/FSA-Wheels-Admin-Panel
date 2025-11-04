@@ -1,14 +1,8 @@
 import React, { useState } from "react";
-import instance from "../../axios";
-import { SuccessToast, ErrorToast } from "../../components/global/Toaster";
 import axios from "../../axios";
+import { SuccessToast, ErrorToast } from "../../components/global/Toaster";
 import { useNavigate } from "react-router";
 import { FiLoader } from "react-icons/fi"; // Spinner
-
-
-
-
-
 
 const CreateUser = () => {
   const navigate = useNavigate();
@@ -25,37 +19,32 @@ const CreateUser = () => {
     drivingLicenseNumber: "",
     insuranceCompany: "",
     locationType: "Point",
-    // latitude: "",
-    // longitude: "",
+    drivingLicenseFrontImage: null,
+    drivingLicenseBackImage: null,
+    insuranceCertificateImage: null,
   });
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    // Fields that should only accept numbers or valid numeric characters
-    const numberFields = [
-      "workContactNumber",
-      "personalContactNumber",
-      // "latitude",
-      // "longitude",
-    ];
-
-    if (numberFields.includes(name)) {
-      if (!/^[0-9+.\-]*$/.test(value)) return;
-    }
-
     setNewUser((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  const handleFileChange = (e) => {
+    const { name, files } = e.target;
+    setNewUser((prev) => ({
+      ...prev,
+      [name]: files[0], // Store the first selected file
+    }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-     if (loading) return; // prevent double submits
-  setLoading(true); // ✅ START LOADING
+    if (loading) return; // prevent double submits
+    setLoading(true); // ✅ START LOADING
 
-    
     const {
       name,
       email,
@@ -66,9 +55,9 @@ const CreateUser = () => {
       membershipNumber,
       drivingLicenseNumber,
       insuranceCompany,
-      locationType,
-      // latitude,
-      // longitude,
+      drivingLicenseFrontImage,
+      drivingLicenseBackImage,
+      insuranceCertificateImage,
     } = newUser;
 
     // Basic empty field check
@@ -81,13 +70,13 @@ const CreateUser = () => {
       !address ||
       !membershipNumber ||
       !drivingLicenseNumber ||
-      !insuranceCompany
-      // !latitude ||
-      // !longitude
+      !insuranceCompany ||
+      !drivingLicenseFrontImage ||
+      !drivingLicenseBackImage ||
+      !insuranceCertificateImage
     ) {
-      ErrorToast("Please fill out all fields.");
-          setLoading(false); // ✅ STOP LOADING
-
+      ErrorToast("Please fill out all fields and upload necessary files.");
+      setLoading(false); // ✅ STOP LOADING
       return;
     }
 
@@ -97,10 +86,7 @@ const CreateUser = () => {
       return;
     }
 
-    if (
-      workContactNumber.length > 15 ||
-      personalContactNumber.length > 15
-    ) {
+    if (workContactNumber.length > 15 || personalContactNumber.length > 15) {
       ErrorToast("Contact numbers must be 15 characters or fewer.");
       return;
     }
@@ -114,62 +100,56 @@ const CreateUser = () => {
       return;
     }
 
-    // Latitude and longitude validation
-//     const lat = parseFloat(latitude);
-//     const lng = parseFloat(longitude);
-//     if (isNaN(lat) || isNaN(lng)) {
-//   ErrorToast("Latitude and Longitude must be numbers.");
-//   return;
-// }
+    // Prepare data for form submission
+    const formData = new FormData();
+    formData.append("name", name);
+    formData.append("email", email);
+    formData.append("supervisor", supervisor);
+    formData.append("workContactNumber", workContactNumber);
+    formData.append("personalContactNumber", personalContactNumber);
+    formData.append("address", address);
+    formData.append("membershipNumber", membershipNumber);
+    formData.append("drivingLicenseNumber", drivingLicenseNumber);
+    formData.append("insuranceCompany", insuranceCompany);
+    formData.append("drivingLicenseFrontImage", drivingLicenseFrontImage);
+    formData.append("drivingLicenseBackImage", drivingLicenseBackImage);
+    formData.append("insuranceCertificateImage", insuranceCertificateImage);
+    formData.append("locationType", "Point");
 
-    const payload = {
-      name,
-      email,
-      supervisor,
-      workContactNumber,
-      personalContactNumber,
-      address,
-      membershipNumber,
-      drivingLicenseNumber,
-      insuranceCompany,
-      // location: {
-      //   type: locationType,
-      //   coordinates: [lng, lat],
-      // },
-      location,
-    };
+    try {
+      await axios.post("/user/register", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      SuccessToast("User Created Successfully!");
 
-   try {
-  await axios.post("/user/register", payload);
-  SuccessToast("User Created Successfully!");
+      // Reset form
+      setNewUser({
+        name: "",
+        email: "",
+        supervisor: "",
+        workContactNumber: "",
+        personalContactNumber: "",
+        address: "",
+        membershipNumber: "",
+        drivingLicenseNumber: "",
+        insuranceCompany: "",
+        locationType: "Point",
+        drivingLicenseFrontImage: null,
+        drivingLicenseBackImage: null,
+        insuranceCertificateImage: null,
+      });
 
-  // Reset form
-  setNewUser({
-    name: "",
-    email: "",
-    supervisor: "",
-    workContactNumber: "",
-    personalContactNumber: "",
-    address: "",
-    membershipNumber: "",
-    drivingLicenseNumber: "",
-    insuranceCompany: "",
-    locationType: "Point",
-    // latitude: "",
-    // longitude: "",
-  });
-
-  // Delay before navigation to allow toast display
-  setTimeout(() => {
-    navigate("/app/users");
-  }, 1000); // 1.2 seconds
-} catch (error) {
-  console.error("Create user error:", error);
-  const msg = error.response?.data?.message || "Failed to create user.";
-  ErrorToast(msg);
-} finally {
-    setLoading(false); // Reset loading whether success or error
-  }
+      // Delay before navigation to allow toast display
+      setTimeout(() => {
+        navigate("/app/users");
+      }, 1000); // 1 second
+    } catch (error) {
+      console.error("Create user error:", error);
+      const msg = error.response?.data?.message || "Failed to create user.";
+      ErrorToast(msg);
+    } finally {
+      setLoading(false); // Reset loading whether success or error
+    }
   };
 
   return (
@@ -270,49 +250,52 @@ const CreateUser = () => {
               required
             />
 
-            {/* Latitude */}
-            {/* <InputField
-              label="Latitude"
-              id="latitude"
-              value={newUser.latitude}
-              onChange={handleInputChange}
-              type="number"
-              step="any"
+            {/* Driving License Front Image */}
+            <FileInput
+              label="Driving License Front Image"
+              id="drivingLicenseFrontImage"
+              onChange={handleFileChange}
               required
-            /> */}
+            />
 
-            {/* Longitude */}
-            {/* <InputField
-              label="Longitude"
-              id="longitude"
-              value={newUser.longitude}
-              onChange={handleInputChange}
-              type="number"
-              step="any"
+            {/* Driving License Back Image */}
+            <FileInput
+              label="Driving License Back Image"
+              id="drivingLicenseBackImage"
+              onChange={handleFileChange}
               required
-            /> */}
+            />
+
+            {/* Insurance Certificate Image */}
+            <FileInput
+              label="Insurance Certificate Image"
+              id="insuranceCertificateImage"
+              onChange={handleFileChange}
+              required
+            />
           </div>
 
           {/* Submit Button */}
           <div>
-  <button
-    type="submit"
-    disabled={loading}
-    className={`w-full py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 ${
-      loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"
-    }`}
-  >
-    {loading ? (
-      <>
-        <span className="text-white">Creating...</span>
-        <FiLoader className="animate-spin text-white text-xl" />
-      </>
-    ) : (
-      <span>Create User</span>
-    )}
-  </button>
-</div>
-
+            <button
+              type="submit"
+              disabled={loading}
+              className={`w-full py-3 rounded-xl transition duration-300 flex items-center justify-center gap-2 ${
+                loading
+                  ? "bg-blue-400 cursor-not-allowed"
+                  : "bg-blue-600 hover:bg-blue-700 text-white"
+              }`}
+            >
+              {loading ? (
+                <>
+                  <span className="text-white">Creating...</span>
+                  <FiLoader className="animate-spin text-white text-xl" />
+                </>
+              ) : (
+                <span>Create User</span>
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>
@@ -346,6 +329,22 @@ const InputField = ({
       maxLength={maxLength}
       inputMode={inputMode}
       step={step}
+      required={required}
+    />
+  </div>
+);
+
+const FileInput = ({ label, id, onChange, required }) => (
+  <div>
+    <label htmlFor={id} className="text-sm font-medium text-gray-700">
+      {label}
+    </label>
+    <input
+      type="file"
+      id={id}
+      name={id}
+      onChange={onChange}
+      className="w-full px-6 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
       required={required}
     />
   </div>

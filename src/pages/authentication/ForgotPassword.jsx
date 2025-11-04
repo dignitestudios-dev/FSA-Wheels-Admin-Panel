@@ -22,12 +22,12 @@ const ForgotPassword = () => {
     try {
       const response = await axios.post("/admin/forgetPassword", { email });
 
-      SuccessToast("OTP sent to your email.");
+      SuccessToast("Reset Link has been send to your email.");
       
       // Optional: Store email in localStorage or context if needed
       localStorage.setItem("resetEmail", email);
 
-      navigate("/auth/verification");
+      // navigate("/auth/verification");
     } catch (error) {
       const message = error?.response?.data?.message || "Failed to send OTP.";
       ErrorToast(message);

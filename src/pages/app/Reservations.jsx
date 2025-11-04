@@ -98,6 +98,9 @@ const handleCardClick = (reservation) => {
         </div>
       ) : error ? (
         <div className="text-center py-4 text-red-500">{error}</div>
+      ) : reservations.length === 0 ? (
+        // Show "No reservations available" if no reservations exist
+        <div className="text-center py-4 text-gray-600">No reservations available</div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
           {reservations.map((reservation) => (

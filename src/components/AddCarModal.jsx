@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { IoMdCloudUpload } from "react-icons/io";
 
 const AddCarModal = ({
@@ -9,23 +9,21 @@ const AddCarModal = ({
   handleFileChange,
   handleAddCar,
   loading,
+  isEditMode,
 }) => {
   const [imageUploaded, setImageUploaded] = useState(false);
   const [passengerError, setPassengerError] = useState("");
 
-
-  // Add this useEffect here
+  // Reset the imageUploaded state when the modal is closed or opened
   useEffect(() => {
     if (!isOpen) {
-      setImageUploaded(false);  // reset when modal closes
+      setImageUploaded(false);
     } else {
-      setImageUploaded(newCar.images.length > 0); // update when modal opens
+      setImageUploaded(newCar.images.length > 0);
     }
   }, [isOpen, newCar.images]);
 
   if (!isOpen) return null;
-
-  
 
   const handleImageChange = (event) => {
     handleFileChange(event);
@@ -45,11 +43,12 @@ const AddCarModal = ({
   return (
     <div className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white p-4 rounded-2xl shadow-xl w-full max-w-md">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">Add New Car</h2>
-        
-        <form className="space-y-4">
+        <h2 className="text-xl font-semibold text-gray-800 mb-4 text-center">
+          {isEditMode ? "Edit Car" : "Add New Car"}
+        </h2>
 
-          {/* Car Name and Type (optional row) */}
+        <form className="space-y-4">
+          {/* Car Name */}
           <div className="flex flex-col">
             <label htmlFor="name" className="text-sm font-medium text-gray-700 mb-1">Car Name</label>
             <input
@@ -63,7 +62,7 @@ const AddCarModal = ({
             />
           </div>
 
-          {/* Make and Model in one row */}
+          {/* Make and Model */}
           <div className="flex flex-col md:flex-row gap-2">
             <div className="flex flex-col w-full md:w-1/2">
               <label htmlFor="make" className="text-sm font-medium text-gray-700 mb-1">Make</label>
@@ -151,7 +150,7 @@ const AddCarModal = ({
             </div>
           </div>
 
-          {/* Buttons */}
+          {/* Action Buttons */}
           <div className="flex gap-4 mt-4">
             <button
               type="button"
@@ -159,7 +158,7 @@ const AddCarModal = ({
               disabled={!!passengerError}
               className="w-1/2 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              {loading ? "Adding..." : "Add Car"}
+              {loading ? "Adding..." : isEditMode ? "Update Vehicle" : "Add Vehicle"}
             </button>
             <button
               type="button"
@@ -169,7 +168,6 @@ const AddCarModal = ({
               Cancel
             </button>
           </div>
-
         </form>
       </div>
     </div>

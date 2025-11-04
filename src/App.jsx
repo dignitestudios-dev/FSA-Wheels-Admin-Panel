@@ -45,7 +45,7 @@ function App() {
       <Route path="auth" element={<AuthLayout />}>
         <Route path="login" element={<DummyLogin />} />
         <Route path="forgot-password" element={<ForgotPassword />} />
-        <Route path="reset-password" element={<ResetPassword />} />
+        <Route path="reset-password/:token" element={<ResetPassword />} />
         <Route path="verification" element={<Verification />} />
       </Route>
 
