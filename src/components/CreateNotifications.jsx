@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { SuccessToast, ErrorToast } from "../components/global/Toaster"; // Import toast functions
-import { FiLoader } from "react-icons/fi"; // Import loading 
-import axios from "../axios"
+import { SuccessToast, ErrorToast } from "../components/global/Toaster";
+import { FiLoader } from "react-icons/fi";
+import axios from "../axios";
 
 const CreateNotifications = ({ closeModal }) => {
   const [newNotification, setNewNotification] = useState({
     title: "",
     message: "",
-    type: "Info", // Default type
-    date: new Date().toISOString().slice(0, 19), // Default to current date
+    type: "Info",
+    date: new Date().toISOString().slice(0, 19),
   });
 
-  const [loading, setLoading] = useState(false); // Loading state for form submission
+  const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -24,24 +24,20 @@ const CreateNotifications = ({ closeModal }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const { title, message, type } = newNotification;
+    const { title, message } = newNotification;
 
-    // Validation: Ensure both title and message are provided
     if (!title || !message) {
       ErrorToast("Please provide both title and message for the notification.");
       return;
     }
 
-    setLoading(true); // Start loading
-
+    setLoading(true);
     try {
-      // API call to create a new notification
       const response = await axios.post("/notifications/push-notification", {
         title,
         body: message,
       });
 
-      // Handle the response
       if (response.status === 200) {
         SuccessToast("Notification created successfully!");
         setNewNotification({
@@ -50,21 +46,25 @@ const CreateNotifications = ({ closeModal }) => {
           type: "Info",
           date: new Date().toISOString().slice(0, 19),
         });
-        closeModal(); // Close modal after successful submission
+        closeModal();
       }
     } catch (error) {
       console.error("Error creating notification:", error);
       ErrorToast("Failed to create notification. Please try again.");
     } finally {
-      setLoading(false); // Stop loading after request is finished
+      setLoading(false);
     }
   };
 
   return (
     <div className="space-y-8">
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        {/* Title */}
         <div>
-          <label htmlFor="title" className="block text-sm font-medium mb-2 text-gray-700">
+          <label
+            htmlFor="title"
+            className="block text-sm font-semibold mb-2 text-gray-700"
+          >
             Notification Title
           </label>
           <input
@@ -73,13 +73,19 @@ const CreateNotifications = ({ closeModal }) => {
             name="title"
             value={newNotification.title}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Enter notification title..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
           />
         </div>
 
+        {/* Message */}
         <div>
-          <label htmlFor="message" className="block text-sm font-medium text-gray-700 mt-2">
+          <label
+            htmlFor="message"
+            className="block text-sm font-semibold text-gray-700"
+          >
             Message
           </label>
           <textarea
@@ -87,44 +93,31 @@ const CreateNotifications = ({ closeModal }) => {
             name="message"
             value={newNotification.message}
             onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Write your notification message..."
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 
+                       min-h-[100px] resize-none"
             required
           />
         </div>
 
-        {/* <div>
-          <label htmlFor="type" className="block text-sm font-medium text-gray-700">
-            Notification Type
-          </label>
-          <select
-            id="type"
-            name="type"
-            value={newNotification.type}
-            onChange={handleInputChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="Info">Info</option>
-            <option value="Success">Success</option>
-            <option value="Warning">Warning</option>
-          </select>
-        </div> */}
-
-        <div>
-          <button
-            type="submit"
-            className="w-full flex-col py-2 mt-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none transition duration-300"
-            disabled={loading} // Disable the button when loading
-          >
-            {loading ? (
-              <>
-                <span>Creating...</span>
-                <FiLoader className="animate-spin text-white" />
-              </>
-            ) : (
-              <span>Create Notification</span>
-            )}
-          </button>
-        </div>
+        {/* Submit Button */}
+        <button
+          type="submit"
+          className={`w-full py-3 mt-4 rounded-lg text-white font-medium 
+                     flex items-center justify-center gap-2 transition duration-300 
+                     ${loading ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <FiLoader className="animate-spin text-white text-lg" />
+              <span>Creating...</span>
+            </>
+          ) : (
+            <span>Create Notification</span>
+          )}
+        </button>
       </form>
     </div>
   );
