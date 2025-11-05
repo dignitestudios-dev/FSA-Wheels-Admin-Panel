@@ -135,12 +135,20 @@ const handleCardClick = (reservation) => {
 
               {/* Vehicle Info */}
               <div className="flex justify-between items-center mt-4">
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm flex items-center font-semibold text-gray-800 border border-black rounded-full px-2 py-1">
-                    <IoCarSportOutline className="mr-1 text-xl" />
-                    {reservation.vehicle?.name || "Vehicle Not Assigned"}
-                  </span>
-                </div>
+               <span className="text-lg font-semibold text-gray-800 flex flex-col">
+  <span className="flex items-center">
+    <IoCarSportOutline className="text-xl inline-block mr-2" />
+    {reservation.vehicle
+      ? `${reservation.vehicle.make} ${reservation.vehicle.model}`
+      : "Vehicle Not Assigned"}
+  </span>
+  {reservation.vehicle && (
+    <span className="text-sm text-gray-500">
+      {reservation.vehicle.vehicleName} • {reservation.vehicle.vehicleType}
+    </span>
+  )}
+</span>
+
                 <img
                   src={reservation.vehicle?.image || audi}
                   alt={reservation.vehicle?.name || "Car"}
@@ -153,9 +161,9 @@ const handleCardClick = (reservation) => {
                 <div className="flex items-center gap-1">
                   <FaUsers className="text-blue-500" /> {reservation.vehicleSeat}
                 </div>
-                <div className="flex items-center gap-1">
+                {/* <div className="flex items-center gap-1">
                   <FaLocationDot className="text-green-500" /> {reservation.totalDistance} KM
-                </div>
+                </div> */}
                 <div className="flex items-center gap-1">
                   <BsClock className="text-orange-500" />
                   {new Date(reservation.startDate).toLocaleTimeString()} -{" "}

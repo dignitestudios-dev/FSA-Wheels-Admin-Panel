@@ -120,12 +120,20 @@ const handleDecline = async () => {
 
         {/* Car Info */}
         <div className="flex justify-between items-center p-6 bg-white border-t">
-          <div className="flex items-center space-x-3">
-            <span className="text-lg font-semibold text-gray-800">
-              <IoCarSportOutline className="text-xl inline-block mr-2" />
-              {reservation.vehicle?.name || "Vehicle Not Assigned"}
-            </span>
-          </div>
+          <span className="text-lg font-semibold text-gray-800 flex flex-col">
+  <span className="flex items-center">
+    <IoCarSportOutline className="text-xl inline-block mr-2" />
+    {reservation.vehicle
+      ? `${reservation.vehicle.make} ${reservation.vehicle.model}`
+      : "Vehicle Not Assigned"}
+  </span>
+  {reservation.vehicle && (
+    <span className="text-sm text-gray-500">
+      {reservation.vehicle.vehicleName} • {reservation.vehicle.vehicleType}
+    </span>
+  )}
+</span>
+
           <img
             src={reservation.vehicle?.image || audi}
             alt={reservation.vehicle?.name || "Car"}
@@ -141,10 +149,10 @@ const handleDecline = async () => {
               <FaUsers className="text-blue-500" />
               {reservation.vehicleSeat || 0} Passengers
             </div>
-            <div className="flex items-center gap-2">
+            {/* <div className="flex items-center gap-2">
               <FaLocationDot className="text-green-500" />
               Distance: {reservation.totalDistance || 0} KM
-            </div>
+            </div> */}
             <div className="flex items-center gap-2">
               <BsClock className="text-orange-500" />
               {new Date(reservation.startDate).toLocaleTimeString()} -{" "}

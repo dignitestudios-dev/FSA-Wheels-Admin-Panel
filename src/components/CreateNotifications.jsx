@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { SuccessToast, ErrorToast } from "../components/global/Toaster";
 import { FiLoader } from "react-icons/fi";
-import axios from "../axios";
+import axios from "../axios"
 
 const CreateNotifications = ({ closeModal }) => {
   const [newNotification, setNewNotification] = useState({
