@@ -36,10 +36,18 @@ export const sidebarData = [
     icon: <UserPlus />,
     link: "/app/create-user",
   },
+  
+  //  {
+  //   title: "Rides",
+  //   icon: <IoCarSportOutline className='text-2xl' />,
+  //   link: "/app/rides",
+  // },
 
   {
     title: "Push Notifications",
     icon: <Bell />,
     link: "/app/notifications",
   },
+
+  
 ];

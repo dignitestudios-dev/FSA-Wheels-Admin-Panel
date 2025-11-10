@@ -1,299 +1,405 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { FaUsers } from "react-icons/fa";
-import { FaLocationDot } from "react-icons/fa6";
-import { BsClock } from "react-icons/bs";
+import {
+  FaUsers,
+  FaGasPump,
+  FaWind,
+  FaCarCrash,
+  FaBroom,
+} from "react-icons/fa";
+import { BsClockHistory } from "react-icons/bs";
 import { IoCarSportOutline } from "react-icons/io5";
-import { audi, hyundai, van } from "../../assets/export";
+import { MdAirlineSeatReclineExtra } from "react-icons/md";
+import { GiPathDistance } from "react-icons/gi";
 import { TiWarning } from "react-icons/ti";
-import axios from "../../axios";
-import { SuccessToast, ErrorToast } from "../../components/global/Toaster"; // Optional
 import { SiTicktick } from "react-icons/si";
+import axios from "../../axios";
+import { SuccessToast, ErrorToast } from "../../components/global/Toaster";
+import { audi } from "../../assets/export";
 
 const ReservationDetails = () => {
   const { state: reservation } = useLocation();
   const navigate = useNavigate();
 
-  console.log("Reservation Data:", reservation);
-
-  // Redirect if no reservation data was passed
   useEffect(() => {
-    if (!reservation) {
-      navigate("/app/reservations");
-    }
+    if (!reservation) navigate("/app/reservations");
   }, [reservation, navigate]);
 
-  if (!reservation) return null; // Prevent rendering until redirect happens
+  if (!reservation) return null;
 
   const [isApproveModalOpen, setIsApproveModalOpen] = useState(false);
   const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
-  const [selectedCar, setSelectedCar] = useState(reservation.vehicle?.name || "Audi R8");
+  const [vehicles, setVehicles] = useState([]);
+  const [selectedVehicleId, setSelectedVehicleId] = useState(
+    reservation.vehicle?._id || ""
+  );
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleCarSelect = (car) => {
-    setSelectedCar(car);
+
+  // 🔹 Fetch available vehicles
+  const fetchVehicles = async () => {
+    try {
+      const res = await axios.get("/admin/vehicles");
+      if (res.data.success && Array.isArray(res.data.data)) {
+        setVehicles(res.data.data);
+      } else {
+        setVehicles([]);
+      }
+    } catch (error) {
+      console.error("Failed to fetch vehicles:", error);
+      ErrorToast("Failed to fetch vehicles.");
+    }
   };
 
-  const openApproveModal = () => setIsApproveModalOpen(true);
+  const openApproveModal = async () => {
+    setIsApproveModalOpen(true);
+    await fetchVehicles();
+  };
+
   const closeApproveModal = () => setIsApproveModalOpen(false);
   const openDeclineModal = () => setIsDeclineModalOpen(true);
   const closeDeclineModal = () => setIsDeclineModalOpen(false);
 
- const handleApprove = async () => {
-  try {
-    const res = await axios.patch(`/reservations/${reservation._id}/status`, {
-      status: "approved",
-    });
+  // 🔹 Approve
+  const handleApprove = async () => {
+      setLoading(true);  // Start loading
 
-    SuccessToast("Reservation approved successfully!");
+    try {
+      const payload = {
+        action: "approved",
+        reservationId: reservation._id,
+      };
 
-    closeApproveModal();
+      if (selectedVehicleId && selectedVehicleId !== reservation.vehicle?._id) {
+        payload.vehicleId = selectedVehicleId;
+      }
 
-    // Optional: Redirect after approval
-    setTimeout(() => {
-      navigate("/app/reservations");
-    }, 1000);
-  } catch (error) {
-    console.error("Approval failed:", error);
-    ErrorToast(error?.response?.data?.message || "Failed to approve reservation.");
+      const res = await axios.post("/admin/reservations/update", payload);
+      if (res.data.success) {
+        SuccessToast("Reservation approved successfully!");
+        closeApproveModal();
+        setTimeout(() => navigate("/app/reservations"), 1000);
+      } else {
+        ErrorToast(res.data.message || "Failed to approve reservation.");
+      }
+    } catch (error) {
+      console.error("Approval failed:", error);
+      ErrorToast("Failed to approve reservation.");
+    }
+    finally {
+    setLoading(false);  // End loading
   }
-};
+  };
 
+  // 🔹 Decline
+  const handleDecline = async () => {
+      setLoading(true);  // Start loading
 
-const handleDecline = async () => {
-  try {
-    const res = await axios.patch(`/reservations/${reservation._id}/status`, {
-      status: "rejected",
-    });
+    try {
+      const payload = {
+        action: "rejected",
+        reservationId: reservation._id,
+      };
 
-    SuccessToast("Reservation rejected.");
-
-    closeDeclineModal();
-
-    // Optional: Redirect after rejection
-    setTimeout(() => {
-      navigate("/app/reservations");
-    }, 1000);
-  } catch (error) {
-    console.error("Rejection failed:", error);
-    ErrorToast(error?.response?.data?.message || "Failed to reject reservation.");
+      const res = await axios.post("/admin/reservations/update", payload);
+      if (res.data.success) {
+        SuccessToast("Reservation declined.");
+        closeDeclineModal();
+        setTimeout(() => navigate("/app/reservations"), 1000);
+      } else {
+        ErrorToast(res.data.message || "Failed to decline reservation.");
+      }
+    } catch (error) {
+      console.error("Rejection failed:", error);
+      ErrorToast("Failed to decline reservation.");
+    }
+    finally {
+    setLoading(false);  // End loading
   }
-};
-
+  };
 
   return (
     <div className="min-h-screen p-6 pt-0">
-      <h1 className="text-2xl font-semibold pb-6 text-gray-800">Reservation Details</h1>
+      <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-3 pb-6">
+        Reservation Details
+      </h1>
 
-      <div className="bg-white border border-gray-200 rounded-2xl shadow-lg overflow-hidden">
-
-        {/* Driver Info */}
-        <div className="flex justify-between items-center p-6 bg-gray-100">
+      <div className="bg-white rounded-2xl shadow-xl border overflow-hidden">
+        {/* USER INFO */}
+        <div className="flex justify-between items-center p-6 bg-gray-50 border-b">
           <div className="flex items-center gap-4">
-            {reservation?.user?.profilePicture ? (
-    <img
-      src={reservation.user.profilePicture}
-      alt={reservation?.user?.name || 'User'}
-      className="w-10 h-10 rounded-full object-contain"
-    />
-  ) : (
-    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm font-medium">
-      {reservation?.user?.name
-        ?.split(' ')
-        .map(word => word[0])
-        .slice(0, 2)
-        .join('')
-        .toUpperCase()}
-    </div>
-  )}
-            <div className="text-sm">
-              <p className="text-gray-700 font-semibold">{reservation?.user?.name || "Unknown Driver"}</p>
-              <p className="text-gray-500">Driver</p>
+            {reservation.user?.profilePicture ? (
+              <img
+                src={reservation.user.profilePicture}
+                alt={reservation.user.name}
+                className="w-12 h-12 rounded-full object-cover border-2 border-blue-400"
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-lg font-medium">
+                {reservation.user?.name
+                  ?.split(" ")
+                  .map((n) => n[0])
+                  .slice(0, 2)
+                  .join("")}
+              </div>
+            )}
+            <div>
+              <p className="font-semibold text-gray-800">{reservation.user.name}</p>
+              <p className="text-sm text-gray-500">{reservation.user.email}</p>
             </div>
-            {/* <div className="text-sm">
-              <p className="text-gray-700 font-semibold">{reservation?.user?.totalRides || "Unknown Driver"}</p>
-            </div> */}
           </div>
-          <div className="bg-yellow-500 text-white px-3 py-2 border border-gray-200 text-xs rounded-full font-medium">
-            {reservation.status || "Pending"}
-          </div>
+
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-semibold capitalize ${
+              reservation.status === "approved"
+                ? "bg-green-100 text-green-700"
+                : reservation.status === "rejected"
+                ? "bg-red-100 text-red-700"
+                : "bg-yellow-100 text-yellow-700"
+            }`}
+          >
+            {reservation.status}
+          </span>
         </div>
 
-        {/* Car Info */}
-        <div className="flex justify-between items-center p-6 bg-white border-t">
-          <span className="text-lg font-semibold text-gray-800 flex flex-col">
-  <span className="flex items-center">
-    <IoCarSportOutline className="text-xl inline-block mr-2" />
-    {reservation.vehicle
-      ? `${reservation.vehicle.make} ${reservation.vehicle.model}`
-      : "Vehicle Not Assigned"}
-  </span>
-  {reservation.vehicle && (
-    <span className="text-sm text-gray-500">
-      {reservation.vehicle.vehicleName} • {reservation.vehicle.vehicleType}
-    </span>
-  )}
-</span>
-
+        {/* VEHICLE INFO */}
+        <div className="flex justify-between items-center p-6 border-b">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-2">
+              <IoCarSportOutline className="text-blue-500" />{" "}
+              {reservation.vehicle
+                ? `${reservation.vehicle.make} ${reservation.vehicle.model}`
+                : "Vehicle Not Assigned"}
+            </h2>
+            {reservation.vehicle && (
+              <p className="text-sm text-gray-500">
+                {reservation.vehicle.vehicleName} • {reservation.vehicle.vehicleType}
+              </p>
+            )}
+          </div>
           <img
             src={reservation.vehicle?.image || audi}
-            alt={reservation.vehicle?.name || "Car"}
-            className="w-36 h-24 object-contain"
+            alt={reservation.vehicle?.vehicleName || "Car"}
+            className="w-36 h-28 object-cover rounded-lg border"
           />
         </div>
 
-        {/* Ride Info */}
-        <div className="p-6 bg-gray-50 border-t">
-          <p className="text-gray-700 text-sm font-medium">Ride Details</p>
-          <div className="flex items-center justify-between mt-2 text-gray-600 text-sm">
-            <div className="flex items-center gap-2">
-              <FaUsers className="text-blue-500" />
-              {reservation.vehicleSeat || 0} Passengers
-            </div>
-            {/* <div className="flex items-center gap-2">
-              <FaLocationDot className="text-green-500" />
-              Distance: {reservation.totalDistance || 0} KM
-            </div> */}
-            <div className="flex items-center gap-2">
-              <BsClock className="text-orange-500" />
-              {new Date(reservation.startDate).toLocaleTimeString()} -{" "}
-              {new Date(reservation.vehicleReturnDate).toLocaleTimeString()}
-            </div>
-          </div>
-        </div>
+        {/* RIDE INFO */}
+       {/* RIDE INFO */}
+<div className="p-6 bg-gray-50 grid md:grid-cols-2 gap-3 text-gray-700 border-b">
+  <div className="flex items-center gap-2">
+    <FaUsers className="text-blue-500" />
+    {reservation.vehicleSeat} Seats
+  </div>
+  <div className="flex items-center gap-2">
+    <BsClockHistory className="text-orange-500" />
+    {new Date(reservation.startDate).toLocaleString()} →{" "}
+    {new Date(reservation.vehicleReturnDate).toLocaleString()}
+  </div>
+  <div className="flex items-center gap-2">
+    <GiPathDistance className="text-blue-600" />
+    Total Distance: <strong>{reservation.totalDistance || 0} km</strong>
+  </div>
 
-        {/* Timeline */}
-        {/* <div className="px-6 py-4 bg-gray-100 border-t">
-          <p className="text-gray-700 text-sm font-medium">Timeline</p>
-          <div className="flex items-center justify-between mt-4">
-            {["Scheduled", "On the Way", "Arrived", "Completed"].map((step, idx) => (
-              <div className="flex flex-col items-center" key={step}>
-                <span className="text-xs text-gray-600">{step}</span>
-                <div
-                  className={`h-3 w-3 rounded-full mt-1 ${
-                    idx === 0 ? "bg-blue-500" : "bg-gray-300"
-                  }`}
-                />
-              </div>
-            ))}
-          </div>
-        </div> */}
+  {/* CONDITIONAL REASON */}
+  {reservation.isUnableToReturn && reservation.reasonToUnableToReturn && (
+    <div className="flex items-start gap-2 col-span-2 text-red-600">
+      <TiWarning className="text-xl mt-1" />
+      <p>{reservation.reasonToUnableToReturn}</p>
+    </div>
+  )}
+</div>
 
-        {/* Additional Info */}
-        {/* <div className="p-6 bg-white border-t flex justify-between items-center">
-          <div>
-            <p className="text-xs text-gray-500">User ID</p>
-<p className="font-semibold text-gray-800">{reservation.user?.name || "N/A"}</p>
-          </div>
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Reservation ID</p>
-            <p className="font-semibold text-gray-800">{reservation._id}</p>
-          </div>
-        </div> */}
 
-        {/* Action Buttons */}
-        <div className="flex justify-center gap-6 py-4 bg-gray-50 border-t">
-          <button
-            onClick={openApproveModal}
-            className="bg-blue-500 text-white py-2 px-6 rounded-2xl hover:bg-blue-700 transition-all w-40"
-          >
-            Approve
-          </button>
-          <button
-            onClick={openDeclineModal}
-            className="bg-red-600 text-white py-2 px-6 rounded-2xl hover:bg-red-700 transition-all w-40"
-          >
-            Decline
-          </button>
-        </div>
+        {/* ACTION BUTTONS (Only if Pending) */}
+        {reservation.status === "pending" && (
+          <div className="flex justify-center gap-6 py-5 bg-gray-50 border-t">
+            <button
+              onClick={openApproveModal}
+              className="bg-blue-600 hover:bg-blue-700 text-white py-2.5 px-6 rounded-xl transition-all w-40 shadow-md"
+            >
+              Approve
+            </button>
+            <button
+              onClick={openDeclineModal}
+              className="bg-red-600 hover:bg-red-700 text-white py-2.5 px-6 rounded-xl transition-all w-40 shadow-md"
+            >
+              Decline
+            </button>
+          </div>
+        )}
       </div>
 
-      {/* Approve Modal */}
+      {/* ✅ APPROVE MODAL */}
       {isApproveModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl max-w-lg w-full">
-<div className="flex flex-col items-center justify-center mb-4">
-              <SiTicktick  className="text-blue-600 font-bold text-6xl mb-4" />
-              <h2 className="text-xl font-medium text-gray-800">Are you sure you want to approve?</h2>
+          <div className="bg-white p-6 rounded-2xl shadow-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex flex-col items-center mb-4">
+              <SiTicktick className="text-blue-600 text-6xl mb-2" />
+              <h2 className="text-lg font-semibold text-gray-900 text-center">
+                Approve Reservation
+              </h2>
+              <p className="text-sm text-gray-500 text-center">
+                Approve with the current car or choose another one below.
+              </p>
             </div>
-            {/* <h2 className="text-xl font-semibold text-gray-800 mb-6 text-center">Select Your Car</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
-              {["Audi R8", "BMW M4", "Tesla Model S"].map((car, index) => (
-                <div
-                  key={car}
-                  onClick={() => handleCarSelect(car)}
-                  className={`cursor-pointer bg-white border rounded-xl shadow p-2 flex flex-col transition-all duration-300 ease-in-out hover:shadow-lg
-                    ${selectedCar === car ? "border-4 border-blue-500" : "border-gray-300"}`}
-                >
+
+            {/* CURRENT CAR */}
+            {reservation.vehicle && (
+              <div className="bg-gray-50 rounded-xl p-4 mb-4 border border-gray-200 shadow-sm">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3">
+                  Currently Assigned Car
+                </h3>
+                <div className="flex gap-4 items-center">
                   <img
-                    src={index === 0 ? audi : index === 1 ? hyundai : van}
-                    alt={car}
-                    className="w-full h-24 object-contain rounded-lg mb-4"
+                    src={reservation.vehicle.image}
+                    alt={reservation.vehicle.vehicleName}
+                    className="w-28 h-20 object-cover rounded-lg border"
                   />
-                  <div className="flex flex-col">
-                    <h3 className="text-base font-semibold text-gray-800 border-b border-gray-300">{car}</h3>
-                    <p className="text-sm text-gray-500">
-                      {car === "Audi R8"
-                        ? "Sporty"
-                        : car === "BMW M4"
-                        ? "Performance"
-                        : "Electric"}
+                  <div>
+                    <p className="font-semibold text-gray-800">
+                      {reservation.vehicle.make} {reservation.vehicle.model}
                     </p>
-                    <div className="text-gray-600 text-sm">
-                      {car === "Audi R8"
-                        ? "2 Seats"
-                        : car === "BMW M4"
-                        ? "4 Seats"
-                        : "5 Seats"}
-                    </div>
+                    <p className="text-sm text-gray-500">
+                      {reservation.vehicle.vehicleType} •{" "}
+                      {reservation.vehicle.seats} Seats
+                    </p>
                   </div>
                 </div>
-              ))}
+              </div>
+            )}
+
+            {/* CUSTOM DROPDOWN */}
+            <div className="relative">
+              <h3 className="text-sm font-semibold text-gray-700 mb-2">
+                Select Another Car
+              </h3>
+
+              <div
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="border border-gray-300 rounded-lg p-3 flex items-center justify-between cursor-pointer hover:border-blue-400 transition-all"
+              >
+                {selectedVehicleId ? (
+                  (() => {
+                    const car = vehicles.find((v) => v._id === selectedVehicleId);
+                    return (
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={car?.image}
+                          alt={car?.vehicleName}
+                          className="w-12 h-10 object-cover rounded-md border"
+                        />
+                        <div>
+                          <p className="text-sm font-semibold text-gray-800">
+                            {car?.make} {car?.model}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            {car?.vehicleType} • {car?.seats} Seats
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })()
+                ) : (
+                  <span className="text-gray-500 text-sm">Select a car...</span>
+                )}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className={`h-5 w-5 text-gray-600 transition-transform ${
+                    dropdownOpen ? "rotate-180" : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
+
+              {dropdownOpen && (
+                <div className="absolute mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-72 overflow-y-auto z-50">
+                  {vehicles.map((v) => (
+                    <div
+                      key={v._id}
+                      onClick={() => {
+                        setSelectedVehicleId(v._id);
+                        setDropdownOpen(false);
+                      }}
+                      className={`flex items-center gap-3 p-3 cursor-pointer hover:bg-blue-50 transition-all ${
+                        selectedVehicleId === v._id ? "bg-blue-100" : ""
+                      }`}
+                    >
+                      <img
+                        src={v.image}
+                        alt={v.vehicleName}
+                        className="w-14 h-10 object-cover rounded-md border"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-gray-800">
+                          {v.make} {v.model}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {v.vehicleName} • {v.vehicleType}
+                        </p>
+                        <p className="text-xs text-gray-500">{v.seats} Seats</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
-            {selectedCar && (
-              <div className="text-start text-lg font-semibold text-gray-800 mb-4">
-                Selected: <span className="text-blue-600">{selectedCar}</span>
-              </div>
-            )} */}
-
-            <div className="flex justify-between gap-4 mt-4">
+            {/* ACTION BUTTONS */}
+            <div className="flex gap-4 mt-6">
               <button
                 onClick={closeApproveModal}
-                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-md transition-all"
+                className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg transition-all"
               >
-                No
+                Cancel
               </button>
               <button
                 onClick={handleApprove}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-md transition-all"
+                          disabled={loading}
+
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg transition-all"
               >
-                Approve
+          {loading ? 'Approving...' : 'Approve'}
               </button>
             </div>
           </div>
         </div>
       )}
 
-      {/* Decline Modal */}
+      {/* ❌ DECLINE MODAL */}
       {isDeclineModalOpen && (
-       <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl max-w-lg w-full">
-            <div className="flex flex-col items-center justify-center mb-4">
-              <TiWarning className="text-red-600 font-bold text-6xl mb-4" />
-              <h2 className="text-xl font-medium text-gray-800">Are you sure you want to decline?</h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
+            <div className="flex flex-col items-center mb-4">
+              <TiWarning className="text-red-600 text-5xl mb-3" />
+              <h2 className="text-lg font-medium text-gray-800 text-center">
+                Are you sure you want to decline this reservation?
+              </h2>
             </div>
-            <div className="flex justify-between gap-4 mt-4">
+            <div className="flex gap-4">
               <button
                 onClick={closeDeclineModal}
-                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-md transition-all"
+                          disabled={loading}
+
+                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-md"
               >
                 No
               </button>
               <button
                 onClick={handleDecline}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-2 rounded-md transition-all"
+                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-md"
               >
-                Decline
+          {loading ? 'Declining...' : 'Decline'}
               </button>
             </div>
           </div>

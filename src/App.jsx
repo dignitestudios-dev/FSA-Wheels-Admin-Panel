@@ -22,6 +22,8 @@ import Verification from "./pages/authentication/Verification";
 
 // Route Guard
 import ProtectedRoutes from "./routes/ProtectedRoutes";
+import Rides from "./pages/app/Rides";
+import RideDetails from "./pages/app/RideDetails";
 
 function App() {
   return (
@@ -38,6 +40,9 @@ function App() {
           <Route path="reservation-details" element={<ReservationDetails />} />
           <Route path="reservation-completed" element={<ReservationCompleted />} />
           <Route path="notifications" element={<Notifications />} />
+                    <Route path="rides" element={<Rides />} />
+                    <Route path="ride-details" element={<RideDetails />} />
+
         </Route>
       </Route>
 
