@@ -36,6 +36,12 @@ export const sidebarData = [
     icon: <UserPlus />,
     link: "/app/create-user",
   },
+
+  {
+    title: "SOS Requests",
+    icon: <UserPlus />,
+    link: "/app/sos",
+  },
   
   //  {
   //   title: "Rides",

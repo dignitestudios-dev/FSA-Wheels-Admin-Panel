@@ -204,11 +204,21 @@ const ReservationDetails = () => {
 
   {/* CONDITIONAL REASON */}
   {reservation.isUnableToReturn && reservation.reasonToUnableToReturn && (
-    <div className="flex items-start gap-2 col-span-2 text-red-600">
-      <TiWarning className="text-xl mt-1" />
-      <p>{reservation.reasonToUnableToReturn}</p>
+  <div className="col-span-2 bg-red-50 border-l-4 border-red-500 rounded-md p-4 flex items-start gap-3 shadow-sm">
+    <div className="flex-shrink-0">
+      <TiWarning className="text-2xl text-red-600 mt-0.5" />
     </div>
-  )}
+    <div>
+      <h4 className="text-sm font-semibold text-red-800 mb-1">
+        Unable to Return Reason :
+      </h4>
+      <p className="text-sm text-red-700 leading-snug">
+        {reservation.reasonToUnableToReturn}
+      </p>
+    </div>
+  </div>
+)}
+
 </div>
 
 

@@ -24,6 +24,7 @@ import Verification from "./pages/authentication/Verification";
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 import Rides from "./pages/app/Rides";
 import RideDetails from "./pages/app/RideDetails";
+import Sos from "./pages/app/Sos";
 
 function App() {
   return (
@@ -42,6 +43,7 @@ function App() {
           <Route path="notifications" element={<Notifications />} />
                     <Route path="rides" element={<Rides />} />
                     <Route path="ride-details" element={<RideDetails />} />
+                    <Route path="sos" element={<Sos />} />
 
         </Route>
       </Route>
