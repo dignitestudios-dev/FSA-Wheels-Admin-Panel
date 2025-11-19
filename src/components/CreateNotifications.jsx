@@ -47,6 +47,7 @@ const CreateNotifications = ({ closeModal }) => {
           date: new Date().toISOString().slice(0, 19),
         });
         closeModal();
+        window.location.reload();
       }
     } catch (error) {
       console.error("Error creating notification:", error);
@@ -77,6 +78,8 @@ const CreateNotifications = ({ closeModal }) => {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg 
                        focus:outline-none focus:ring-2 focus:ring-blue-500"
             required
+                        maxLength={100}
+
           />
         </div>
 
@@ -98,6 +101,7 @@ const CreateNotifications = ({ closeModal }) => {
                        focus:outline-none focus:ring-2 focus:ring-blue-500 
                        min-h-[100px] resize-none"
             required
+            maxLength={250}
           />
         </div>
 

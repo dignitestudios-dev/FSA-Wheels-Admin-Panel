@@ -21,6 +21,12 @@ const ReservationDetails = () => {
   const { state: reservation } = useLocation();
   const navigate = useNavigate();
 
+ const formatDateTime = (d) =>
+  new Date(d).toLocaleString('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+
   useEffect(() => {
     if (!reservation) navigate("/app/reservations");
   }, [reservation, navigate]);
@@ -194,8 +200,23 @@ const ReservationDetails = () => {
   </div>
   <div className="flex items-center gap-2">
     <BsClockHistory className="text-orange-500" />
-    {new Date(reservation.startDate).toLocaleString()} →{" "}
-    {new Date(reservation.vehicleReturnDate).toLocaleString()}
+    Date & Time:{" "}
+    {/* {new Date(reservation.startDate).toLocaleString()} →{" "} */}
+        {/* {Date(reservation.startDate)} */}
+
+    {/* {new Date(reservation.vehicleReturnDate).toLocaleString()} */}
+        {/* {Date(reservation.vehicleReturnDate)} */}
+ 
+     <div>
+ <div>
+  {formatDateTime(reservation.startDate)}{" to "}
+  {formatDateTime(reservation.vehicleReturnDate)}
+</div>
+
+
+</div>
+
+
   </div>
   <div className="flex items-center gap-2">
     <GiPathDistance className="text-blue-600" />

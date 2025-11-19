@@ -6,6 +6,7 @@ import { UserPlus } from 'lucide-react';
 import { File } from 'lucide-react';
 import { Bell } from 'lucide-react';
 import { IoCarSportOutline } from "react-icons/io5";
+import { Info } from 'lucide-react';
 
 
 
@@ -39,7 +40,7 @@ export const sidebarData = [
 
   {
     title: "SOS Requests",
-    icon: <UserPlus />,
+    icon: <Info />,
     link: "/app/sos",
   },
   

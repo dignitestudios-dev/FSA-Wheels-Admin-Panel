@@ -41,116 +41,130 @@ const CreateUser = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (loading) return; // prevent double submits
-    setLoading(true); // ✅ START LOADING
+  e.preventDefault();
+  if (loading) return; // prevent double submits
+  setLoading(true); // ✅ START LOADING
 
-    const {
-      name,
-      email,
-      supervisor,
-      workContactNumber,
-      personalContactNumber,
-      address,
-      membershipNumber,
-      drivingLicenseNumber,
-      insuranceCompany,
-      drivingLicenseFrontImage,
-      drivingLicenseBackImage,
-      insuranceCertificateImage,
-    } = newUser;
+  const {
+    name,
+    email,
+    supervisor,
+    workContactNumber,
+    personalContactNumber,
+    address,
+    membershipNumber,
+    drivingLicenseNumber,
+    insuranceCompany,
+    drivingLicenseFrontImage,
+    drivingLicenseBackImage,
+    insuranceCertificateImage,
+  } = newUser;
 
-    // Basic empty field check
-    if (
-      !name ||
-      !email ||
-      !supervisor ||
-      !workContactNumber ||
-      !personalContactNumber ||
-      !address ||
-      !membershipNumber ||
-      !drivingLicenseNumber ||
-      !insuranceCompany ||
-      !drivingLicenseFrontImage ||
-      !drivingLicenseBackImage ||
-      !insuranceCertificateImage
-    ) {
-      ErrorToast("Please fill out all fields and upload necessary files.");
-      setLoading(false); // ✅ STOP LOADING
-      return;
-    }
-
-    // Length validations
-    if (name.length > 100 || supervisor.length > 100) {
-      ErrorToast("Name or supervisor name is too long.");
-      return;
-    }
-
-    if (workContactNumber.length > 15 || personalContactNumber.length > 15) {
-      ErrorToast("Contact numbers must be 15 characters or fewer.");
-      return;
-    }
-
-    if (
-      membershipNumber.length > 25 ||
-      drivingLicenseNumber.length > 25 ||
-      insuranceCompany.length > 100
-    ) {
-      ErrorToast("Membership, license, or insurance input is too long.");
-      return;
-    }
-
-    // Prepare data for form submission
-    const formData = new FormData();
-    formData.append("name", name);
-    formData.append("email", email);
-    formData.append("supervisor", supervisor);
-    formData.append("workContactNumber", workContactNumber);
-    formData.append("personalContactNumber", personalContactNumber);
-    formData.append("address", address);
-    formData.append("membershipNumber", membershipNumber);
-    formData.append("drivingLicenseNumber", drivingLicenseNumber);
-    formData.append("insuranceCompany", insuranceCompany);
-    formData.append("drivingLicenseFrontImage", drivingLicenseFrontImage);
-    formData.append("drivingLicenseBackImage", drivingLicenseBackImage);
-    formData.append("insuranceCertificateImage", insuranceCertificateImage);
-    formData.append("locationType", "Point");
-
-    try {
-      await axios.post("/user/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      SuccessToast("User Created Successfully!");
-
-      // Reset form
-      setNewUser({
-        name: "",
-        email: "",
-        supervisor: "",
-        workContactNumber: "",
-        personalContactNumber: "",
-        address: "",
-        membershipNumber: "",
-        drivingLicenseNumber: "",
-        insuranceCompany: "",
-        locationType: "Point",
-        drivingLicenseFrontImage: null,
-        drivingLicenseBackImage: null,
-        insuranceCertificateImage: null,
-      });
-
-      // Delay before navigation to allow toast display
-      setTimeout(() => {
-        navigate("/app/users");
-      }, 1000); // 1 second
-    } catch (error) {
-      console.error("Create user error:", error);
-      const msg = error.response?.data?.message || "Failed to create user.";
-      ErrorToast(msg);
-    } finally {
-      setLoading(false); // Reset loading whether success or error
-    }
+  // Trim spaces from input fields
+  const trimmedFields = {
+    name: name.trim(),
+    email: email.trim(),
+    supervisor: supervisor.trim(),
+    workContactNumber: workContactNumber.trim(),
+    personalContactNumber: personalContactNumber.trim(),
+    address: address.trim(),
+    membershipNumber: membershipNumber.trim(),
+    drivingLicenseNumber: drivingLicenseNumber.trim(),
+    insuranceCompany: insuranceCompany.trim(),
   };
+
+  // Check if any required field is just spaces or empty
+  if (
+    !trimmedFields.name ||
+    !trimmedFields.email ||
+    !trimmedFields.supervisor ||
+    !trimmedFields.workContactNumber ||
+    !trimmedFields.personalContactNumber ||
+    !trimmedFields.address ||
+    !trimmedFields.membershipNumber ||
+    !trimmedFields.drivingLicenseNumber ||
+    !trimmedFields.insuranceCompany ||
+    !drivingLicenseFrontImage ||
+    !drivingLicenseBackImage ||
+    !insuranceCertificateImage
+  ) {
+    ErrorToast("Please fill out all fields and upload necessary files.");
+    setLoading(false); // ✅ STOP LOADING
+    return;
+  }
+
+  // Length validations
+  if (trimmedFields.name.length > 100 || trimmedFields.supervisor.length > 100) {
+    ErrorToast("Name or supervisor name is too long.");
+    return;
+  }
+
+  if (workContactNumber.length > 15 || personalContactNumber.length > 15) {
+    ErrorToast("Contact numbers must be 15 characters or fewer.");
+    return;
+  }
+
+  if (
+    membershipNumber.length > 25 ||
+    drivingLicenseNumber.length > 25 ||
+    insuranceCompany.length > 100
+  ) {
+    ErrorToast("Membership, license, or insurance input is too long.");
+    return;
+  }
+
+  // Prepare data for form submission
+  const formData = new FormData();
+  formData.append("name", trimmedFields.name);
+  formData.append("email", trimmedFields.email);
+  formData.append("supervisor", trimmedFields.supervisor);
+  formData.append("workContactNumber", trimmedFields.workContactNumber);
+  formData.append("personalContactNumber", trimmedFields.personalContactNumber);
+  formData.append("address", trimmedFields.address);
+  formData.append("membershipNumber", trimmedFields.membershipNumber);
+  formData.append("drivingLicenseNumber", trimmedFields.drivingLicenseNumber);
+  formData.append("insuranceCompany", trimmedFields.insuranceCompany);
+  formData.append("drivingLicenseFrontImage", drivingLicenseFrontImage);
+  formData.append("drivingLicenseBackImage", drivingLicenseBackImage);
+  formData.append("insuranceCertificateImage", insuranceCertificateImage);
+  formData.append("locationType", "Point");
+
+  try {
+    await axios.post("/user/register", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    SuccessToast("User Created Successfully!");
+
+    // Reset form
+    setNewUser({
+      name: "",
+      email: "",
+      supervisor: "",
+      workContactNumber: "",
+      personalContactNumber: "",
+      address: "",
+      membershipNumber: "",
+      drivingLicenseNumber: "",
+      insuranceCompany: "",
+      locationType: "Point",
+      drivingLicenseFrontImage: null,
+      drivingLicenseBackImage: null,
+      insuranceCertificateImage: null,
+    });
+
+    // Delay before navigation to allow toast display
+    setTimeout(() => {
+      navigate("/app/users");
+    }, 1000); // 1 second
+  } catch (error) {
+    console.error("Create user error:", error);
+    const msg = error.response?.data?.message || "Failed to create user.";
+    ErrorToast(msg);
+  } finally {
+    setLoading(false); // Reset loading whether success or error
+  }
+};
+
 
   return (
     <div className="col-span-3 p-6 pt-0">
@@ -205,7 +219,7 @@ const CreateUser = () => {
               id="personalContactNumber"
               value={newUser.personalContactNumber}
               onChange={handleInputChange}
-              maxLength={15}
+              maxLength={12}
               inputMode="numeric"
               required
             />
@@ -334,20 +348,39 @@ const InputField = ({
   </div>
 );
 
-const FileInput = ({ label, id, onChange, required }) => (
-  <div>
-    <label htmlFor={id} className="text-sm font-medium text-gray-700">
-      {label}
-    </label>
-    <input
-      type="file"
-      id={id}
-      name={id}
-      onChange={onChange}
-      className="w-full px-6 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
-      required={required}
-    />
-  </div>
-);
+const FileInput = ({ label, id, onChange, required }) => {
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+
+    // Check file size (10MB = 10 * 1024 * 1024 bytes)
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file && file.size > MAX_SIZE) {
+      alert("File size should not exceed 10 MB.");
+      e.target.value = ""; // Clear the file input
+      return;
+    }
+
+    // Pass the valid file to the parent onChange function
+    onChange(e);
+  };
+
+  return (
+    <div>
+      <label htmlFor={id} className="text-sm font-medium text-gray-700">
+        {label}
+      </label>
+      <input
+        type="file"
+        id={id}
+        name={id}
+        onChange={handleFileChange}
+        accept="image/*" // Only allow image files
+        className="w-full px-6 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+        required={required}
+      />
+    </div>
+  );
+};
+
 
 export default CreateUser;

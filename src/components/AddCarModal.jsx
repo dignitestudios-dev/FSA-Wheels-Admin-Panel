@@ -34,6 +34,8 @@ const AddCarModal = ({
     const { value } = e.target;
     if (value < 2) {
       setPassengerError("Seats must be at least 2");
+    } else if (value > 7) {
+      setPassengerError("Seats cannot exceed 7");
     } else {
       setPassengerError("");
     }
@@ -121,6 +123,7 @@ const AddCarModal = ({
               onChange={handlePassengersChange}
               placeholder="Enter number of passengers"
               min="2"
+              max="7"
               className="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {passengerError && (
