@@ -25,6 +25,8 @@ import ProtectedRoutes from "./routes/ProtectedRoutes";
 import Rides from "./pages/app/Rides";
 import RideDetails from "./pages/app/RideDetails";
 import Sos from "./pages/app/Sos";
+import TermsandConditions from "./pages/app/TermsandConditions";
+import PrivacyPolicy from "./pages/app/PrivacyPolicy";
 
 function App() {
   return (
@@ -59,6 +61,10 @@ function App() {
       {/* Redirect root to login */}
 
       <Route path="/" element={<Navigate to="/auth/login" />} />
+              
+              <Route path="termsandconditions" element={<TermsandConditions />} />
+              <Route path="privacypolicy" element={<PrivacyPolicy />} />
+
 
       {/* 404 Fallback */}
       <Route
