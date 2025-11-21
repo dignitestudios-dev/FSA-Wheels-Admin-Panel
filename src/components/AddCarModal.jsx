@@ -16,17 +16,17 @@ const AddCarModal = ({
 
   // Reset the imageUploaded state when the modal is closed or opened
   useEffect(() => {
-    if (!isOpen) {
-      setImageUploaded(false);
+    if (isOpen) {
+      setImageUploaded(newCar.images && newCar.images.length > 0);
     } else {
-      setImageUploaded(newCar.images.length > 0);
+      setImageUploaded(false); // Reset when modal is closed
     }
   }, [isOpen, newCar.images]);
 
   if (!isOpen) return null;
 
   const handleImageChange = (event) => {
-    handleFileChange(event);
+    handleFileChange(event); // You handle the file change here
     setImageUploaded(event.target.files.length > 0);
   };
 
@@ -39,7 +39,7 @@ const AddCarModal = ({
     } else {
       setPassengerError("");
     }
-    handleInputChange(e);
+    handleInputChange(e); // Pass the event up to the parent
   };
 
   return (

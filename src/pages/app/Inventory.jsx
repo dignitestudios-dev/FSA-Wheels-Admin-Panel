@@ -82,8 +82,8 @@ const Inventory = () => {
     const formData = new FormData();
     formData.append("vehicleName", newCar.name);
     formData.append("vehicleType", newCar.type);
-    formData.append("make", "Toyota");
-    formData.append("model", "2023");
+formData.append("make", newCar.make);  // Use dynamic value
+  formData.append("model", newCar.model); // Use dynamic value
     formData.append("seats", Number(newCar.passengers));
     formData.append("image", newCar.images[0]);
 
