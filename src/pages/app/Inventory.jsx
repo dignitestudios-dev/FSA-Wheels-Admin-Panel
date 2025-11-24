@@ -167,44 +167,47 @@ formData.append("make", newCar.make);  // Use dynamic value
         </div>
       ) : (
         <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {/* Car Cards */}
-          {cars.map((car) => (
-            <div
-              key={car._id}
-              className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-lg relative"
-            >
-              {/* Delete Button */}
-              <button
-                onClick={() => {
-                  setDeleteCarId(car._id);
-                  setShowDeleteModal(true);
-                }}
-                className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-xl"
-              >
-                <FaTrash />
-              </button>
+  {/* Car Cards */}
+  {cars.map((car) => (
+    <div
+      key={car._id}
+      className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg hover:shadow-2xl relative flex flex-col"
+    >
+      {/* Delete Button */}
+      <button
+        onClick={() => {
+          setDeleteCarId(car._id);
+          setShowDeleteModal(true);
+        }}
+        className="absolute top-2 right-2 flex items-center gap-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg transition-colors duration-300"
+      >
+      <span className="text-xs">Delete</span>  <FaTrash className="text-xs" />
+      </button>
 
-              {/* Car Image */}
-              <img
-                src={car.image}
-                alt={car.vehicleName}
-                className="w-full h-48 object-cover rounded-t-xl"
-              />
+      {/* Car Image */}
+      <img
+        src={car.image}
+        alt={car.vehicleName}
+        className="w-full h-48 object-cover rounded-t-2xl"
+      />
 
-              {/* Car Details */}
-              <div className="p-4 flex flex-col space-y-3">
-                <h2 className="text-2xl font-semibold text-gray-900">{car.vehicleName}</h2>
-                <div className="flex items-center justify-between text-sm text-gray-600">
-                  <p className="font-medium text-gray-500">{car.vehicleType}</p>
-                  <div className="flex items-center gap-2">
-                    <FaUsers className="text-blue-600 text-lg" />
-                    <span>{car.seats}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
+      {/* Car Details */}
+      <div className="p-6 flex flex-col justify-between">
+        <h2 className="text-2xl font-semibold text-gray-800">{car.vehicleName}</h2>
+        <div className="text-sm text-gray-600 space-y-2">
+          <p className="font-medium text-gray-500">Type: {car.vehicleType}</p>
+          <p className="font-medium text-gray-500">Make: {car.make}</p>
+          <p className="font-medium text-gray-500">Model: {car.model}</p>
+          <div className="flex font-medium items-center gap-2 text-gray-500">
+            Seats : <FaUsers className="text-blue-600 text-lg" />
+            <span>{car.seats}</span>
+          </div>
         </div>
+      </div>
+    </div>
+  ))}
+</div>
+
       )}
 
       {/* Delete Confirmation Modal */}
