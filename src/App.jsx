@@ -43,10 +43,9 @@ function App() {
           <Route path="reservation-details" element={<ReservationDetails />} />
           <Route path="reservation-completed" element={<ReservationCompleted />} />
           <Route path="notifications" element={<Notifications />} />
-                    <Route path="rides" element={<Rides />} />
-                    <Route path="ride-details" element={<RideDetails />} />
-                    <Route path="sos" element={<Sos />} />
-
+          <Route path="rides" element={<Rides />} />
+          <Route path="ride-details" element={<RideDetails />} />
+          <Route path="sos" element={<Sos />} />
         </Route>
       </Route>
 

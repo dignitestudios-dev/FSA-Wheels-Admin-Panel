@@ -188,7 +188,7 @@ formData.append("make", newCar.make);  // Use dynamic value
       <img
         src={car.image}
         alt={car.vehicleName}
-        className="w-full h-48 object-cover rounded-t-2xl"
+        className="w-full h-48 object-contain rounded-t-2xl"
       />
 
       {/* Car Details */}

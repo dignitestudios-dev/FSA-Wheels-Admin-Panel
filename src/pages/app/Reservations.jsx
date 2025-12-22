@@ -6,6 +6,7 @@ import { audi } from "../../assets/export";
 import { useNavigate } from "react-router";
 import axios from "../../axios";
 import CustomLoader from "../../components/global/CustomLoader";
+import { Download } from "lucide-react";
 
 const Reservations = () => {
   const [activeTab, setActiveTab] = useState("pending");
@@ -14,7 +15,7 @@ const Reservations = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const tabs = ["pending", "approved", "rejected", "cancelled", "completed"];
+  const tabs = ["pending", "approved", "rejected", "cancelled", "completed","issues"];
 
   useEffect(() => {
     const fetchReservations = async () => {
@@ -54,29 +55,70 @@ const Reservations = () => {
   };
   console.log("Reservations:", reservations);
 
+  const handleExportCSV = async () => {
+  try {
+    const res = await axios.get('/admin/report/download', {
+      responseType: 'blob', // 👈 required for file download
+    });
+
+    const blob = new Blob([res.data], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `reservations-report-${Date.now()}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+
+    window.URL.revokeObjectURL(url);
+  } catch (error) {
+    console.error('CSV export failed:', error);
+  }
+};
+
+
   return (
     <div className="p-6 pt-0 space-y-6">
       {/* Tabs */}
-      <div className="flex justify-between space-x-4 border-b pb-4">
-        <h1 className="text-2xl font-semibold text-gray-800 pt-3">
-          Reservations
-        </h1>
-        <div className="flex space-x-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => handleTabChange(tab)}
-              className={`py-2 px-4 text-lg font-semibold capitalize ${
-                activeTab === tab
-                  ? "text-blue-600 border-b-2 border-blue-600"
-                  : "text-gray-600 hover:text-blue-600"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-      </div>
+
+<div className="flex justify-between items-center border-b pb-4">
+  {/* Left: Title */}
+  <h1 className="text-2xl font-semibold text-gray-800 pt-3">
+    Reservations
+  </h1>
+
+  {/* Right: Tabs + Export */}
+  <div className="flex items-center space-x-6">
+    {/* Tabs */}
+    <div className="flex space-x-4">
+      {tabs.map((tab) => (
+        <button
+          key={tab}
+          onClick={() => handleTabChange(tab)}
+          className={`py-2 px-4 text-sm font-semibold capitalize transition ${
+            activeTab === tab
+              ? 'text-blue-600 border-b-2 border-blue-600'
+              : 'text-gray-600 hover:text-blue-600'
+          }`}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+
+    {/* Export CSV Button */}
+    <button
+      onClick={handleExportCSV}
+      className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-sm transition"
+    >
+      <Download size={16} />
+      <span className="text-sm font-medium">Export CSV</span>
+    </button>
+  </div>
+</div>
+
 
       {/* Content */}
       {loading ? (

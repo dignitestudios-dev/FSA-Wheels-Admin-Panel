@@ -20,6 +20,9 @@ import { audi } from "../../assets/export";
 const ReservationDetails = () => {
   const { state: reservation } = useLocation();
   const navigate = useNavigate();
+  const [declineReason, setDeclineReason] = useState('');
+const [declineError, setDeclineError] = useState('');
+
 
  const formatDateTime = (d) =>
   new Date(d).toLocaleString('en-US', {
@@ -99,31 +102,40 @@ const ReservationDetails = () => {
   };
 
   // 🔹 Decline
-  const handleDecline = async () => {
-      setLoading(true);  // Start loading
-
-    try {
-      const payload = {
-        action: "rejected",
-        reservationId: reservation._id,
-      };
-
-      const res = await axios.post("/admin/reservations/update", payload);
-      if (res.data.success) {
-        SuccessToast("Reservation declined.");
-        closeDeclineModal();
-        setTimeout(() => navigate("/app/reservations"), 1000);
-      } else {
-        ErrorToast(res.data.message || "Failed to decline reservation.");
-      }
-    } catch (error) {
-      console.error("Rejection failed:", error);
-      ErrorToast("Failed to decline reservation.");
-    }
-    finally {
-    setLoading(false);  // End loading
+ const handleDecline = async () => {
+  if (!declineReason.trim()) {
+    setDeclineError('Please provide a reason for declining.');
+    return;
   }
-  };
+
+  setLoading(true);
+
+  try {
+    const payload = {
+      action: 'rejected',
+      reservationId: reservation._id,
+      reason: declineReason, // ✅ send reason
+    };
+
+    const res = await axios.post('/admin/reservations/update', payload);
+
+    if (res.data.success) {
+      SuccessToast('Reservation declined.');
+      setDeclineReason('');
+      setDeclineError('');
+      closeDeclineModal();
+      setTimeout(() => navigate('/app/reservations'), 1000);
+    } else {
+      ErrorToast(res.data.message || 'Failed to decline reservation.');
+    }
+  } catch (error) {
+    console.error('Rejection failed:', error);
+    ErrorToast('Failed to decline reservation.');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen p-6 pt-0">
@@ -408,34 +420,65 @@ const ReservationDetails = () => {
       )}
 
       {/* ❌ DECLINE MODAL */}
-      {isDeclineModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
-            <div className="flex flex-col items-center mb-4">
-              <TiWarning className="text-red-600 text-5xl mb-3" />
-              <h2 className="text-lg font-medium text-gray-800 text-center">
-                Are you sure you want to decline this reservation?
-              </h2>
-            </div>
-            <div className="flex gap-4">
-              <button
-                onClick={closeDeclineModal}
-                          disabled={loading}
+    {/* ❌ DECLINE MODAL */}
+{isDeclineModalOpen && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div className="bg-white p-6 rounded-xl shadow-xl max-w-md w-full">
+      <div className="flex flex-col items-center mb-4">
+        <TiWarning className="text-red-600 text-5xl mb-3" />
+        <h2 className="text-lg font-semibold text-gray-800 text-center">
+          Decline Reservation
+        </h2>
+        <p className="text-sm text-gray-500 text-center mt-1">
+          Please provide a reason for declining this reservation.
+        </p>
+      </div>
 
-                className="w-full bg-gray-300 hover:bg-gray-400 text-gray-800 py-3 rounded-md"
-              >
-                No
-              </button>
-              <button
-                onClick={handleDecline}
-                className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-md"
-              >
+      {/* Reason Input */}
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Reason <span className="text-red-500">*</span>
+        </label>
+        <textarea
+          value={declineReason}
+          onChange={(e) => {
+            setDeclineReason(e.target.value);
+            setDeclineError('');
+          }}
+          rows={4}
+          placeholder="Enter reason for declining..."
+          className={`w-full px-3 py-2 border rounded-lg resize-none focus:outline-none focus:ring-2 ${
+            declineError
+              ? 'border-red-500 focus:ring-red-400'
+              : 'border-gray-300 focus:ring-red-500'
+          }`}
+        />
+        {declineError && (
+          <p className="text-sm text-red-600 mt-1">{declineError}</p>
+        )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex gap-4">
+        <button
+          onClick={closeDeclineModal}
+          disabled={loading}
+          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 py-3 rounded-lg transition"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleDecline}
+          disabled={loading}
+          className="w-full bg-red-600 hover:bg-red-700 text-white py-3 rounded-lg transition disabled:opacity-70"
+        >
           {loading ? 'Declining...' : 'Decline'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };

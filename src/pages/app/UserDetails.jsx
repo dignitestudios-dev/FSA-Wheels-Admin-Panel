@@ -1,11 +1,15 @@
 import { ArrowLeft } from 'lucide-react';
-import React, { use } from 'react';
+import React, { use, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
+import axios from "../../axios"
+import { SuccessToast } from '../../components/global/Toaster';
 
 const UserDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  const user = state?.user;
+  const [user, setUser] = useState(state?.user);
+  const [loadingStatus, setLoadingStatus] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   if (!user) {
     return (
@@ -18,18 +22,71 @@ const UserDetails = () => {
     );
   }
 
+
+  
+  const toggleStatus = async () => {
+    setLoadingStatus(true);
+    try {
+      const response = await axios.patch(`/user/${user._id}/status`);
+      // Assuming API returns updated user object
+      setUser(response.data.data);
+      navigate('/app/users'); // Refresh the page to reflect changes
+      SuccessToast(`User has been ${user.isDeactivatedByAdmin ? 'activated' : 'deactivated'} successfully.`);
+    } catch (error) {
+      console.error('Failed to update status:', error);
+    } finally {
+      setLoadingStatus(false);  
+    }
+  };
+
   return (
     <div className="container mx-auto p-6 pt-0 space-y-8">
       {/* Header */}
-      <div className="flex items-center ">
-         {/* <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-md font-medium"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button> */}
+      <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold text-gray-900">User Profile</h2>
+       {/* Change this button */}
+<button
+  onClick={() => setShowModal(true)} // <-- open modal
+  disabled={loadingStatus}
+  className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
+    user.isDeactivatedByAdmin
+      ? 'bg-green-100 text-green-700 hover:bg-green-200'
+      : 'bg-red-100 text-red-700 hover:bg-red-200'
+  }`}
+>
+                  {user.isDeactivatedByAdmin ? 'Activate' : 'Deactivate'}
+
+</button>
+
       </div>
+
+       {/* Confirmation Modal */}
+      {showModal && (
+        <div className="fixed -inset-8 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-lg p-6 w-96">
+            <h3 className="text-lg font-semibold mb-4">Confirm Action</h3>
+            <p className="mb-6">
+              Are you sure you want to {user.isDeactivatedByAdmin ? 'activate' : 'deactivate'} this user?
+            </p>
+            <div className="flex justify-end gap-4">
+              <button
+                onClick={() => setShowModal(false)}
+                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={toggleStatus}
+                className={`px-4 py-2 rounded-lg font-semibold ${
+                  user.isDeactivatedByAdmin ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-red-600 text-white hover:bg-red-700'
+                }`}
+              >
+  {loadingStatus ? 'Updating...' : user.isDeactivatedByAdmin ? 'Activate User' : 'Deactivate User'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Main Card */}
       <div className="bg-white rounded-xl  border border-gray-200 p-6">
@@ -55,9 +112,17 @@ const UserDetails = () => {
             <h3 className="text-3xl font-semibold text-gray-900 mt-6">{user.name}</h3>
             <p className="text-gray-600">{user.email}</p>
             <div className="flex flex-wrap gap-4 mt-2 text-sm">
-              <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Supervisor: {user.supervisor || 'N/A'}</span>
-              <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full">Membership: {user.membershipNumber || 'N/A'}</span>
-              <span className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full">Created: {new Date(user.createdAt).toLocaleDateString()}</span>
+              <span className="bg-blue-100 border text-blue-700 px-3 py-1 rounded-full">Supervisor: {user.supervisor || 'N/A'}</span>
+              <span className="bg-green-100 border text-green-700 px-3 py-1 rounded-full">Membership: {user.membershipNumber || 'N/A'}</span>
+               <span
+              className={`px-3 py-1 rounded-full border text-sm font-semibold ${
+                user.isDeactivatedByAdmin ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+              }`}
+            >
+              {user.isDeactivatedByAdmin ? 'Inactive' : 'Active'}
+            </span>
+                          <span className="bg-gray-100 border  text-gray-800 px-3 py-1 rounded-full">Created: {new Date(user.createdAt).toLocaleDateString()}</span>
+
             </div>
           </div>
         </div>
@@ -110,6 +175,9 @@ const UserDetails = () => {
 
           </div>
         </div>
+
+
+         
 
         {/* Divider */}
         <hr className="my-6" />

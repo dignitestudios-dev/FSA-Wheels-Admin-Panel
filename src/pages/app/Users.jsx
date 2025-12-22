@@ -7,6 +7,8 @@ import EditUserModal from '../../components/user/EditUserModal';
 import DeleteUserModal from '../../components/user/DeleteUserModal';
 import axios from '../../axios';
 import { AiOutlineDelete } from "react-icons/ai";
+       import { Search, X } from 'lucide-react';
+
 
 
 const Users = () => {
@@ -19,24 +21,44 @@ const Users = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const navigate = useNavigate();
+  const [search, setSearch] = useState('');
+const [debouncedSearch, setDebouncedSearch] = useState('');
 
-  useEffect(() => {
-    const fetchUsers = async (page = 1, limit = 10) => {
-      setLoading(true);
-      try {
-        const response = await axios.get(`/user?page=${page}&limit=${limit}`);
-        const { data } = response;
-        setUsers(data.data.users);
-        setTotalUsers(data.data.total);
-      } catch (error) {
-        console.error('Error fetching users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchUsers(currentPage);
-  }, [currentPage]);
+useEffect(() => {
+  const handler = setTimeout(() => {
+    setDebouncedSearch(search);
+    setCurrentPage(1); // reset page on new search
+  }, 500);
+
+  return () => clearTimeout(handler);
+}, [search]);
+
+
+useEffect(() => {
+  const fetchUsers = async (page = 1, limit = 10) => {
+    setLoading(true);
+    try {
+      const response = await axios.get('/user', {
+        params: {
+          page,
+          limit,
+          search: debouncedSearch, // 👈 search key
+        },
+      });
+
+      const { data } = response;
+      setUsers(data.data.users);
+      setTotalUsers(data.data.total);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUsers(currentPage);
+}, [currentPage, debouncedSearch]);
 
   const openCreateModal = () => setIsCreateModalOpen(true);
   const closeCreateModal = () => setIsCreateModalOpen(false);
@@ -79,6 +101,52 @@ const handleViewUser = (user) => navigate(`/app/user-details`, { state: { user }
             <Plus className="text-xs" /> Create User
           </button>
         </div> */}
+
+<div className="flex justify-between items-center">
+  <div className="relative w-full max-w-md">
+    {/* Search Icon */}
+    <Search
+      size={18}
+      className="absolute left-3 top-1/2 -translate-y-1/2  text-gray-400"
+    />
+
+    {/* Input */}
+    <input
+      type="text"
+      placeholder="Search users by name, email, or membership..."
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+      className="
+        w-full
+        pl-10 pr-10
+        py-2.5
+        text-sm
+        border
+        border-gray-300
+        rounded-lg
+        bg-white
+        placeholder-gray-400
+        focus:outline-none
+        focus:ring-2
+        focus:ring-blue-500
+        focus:border-blue-500
+        transition
+      "
+    />
+
+    {/* Clear Button */}
+    {search && (
+      <button
+        onClick={() => setSearch('')}
+        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+      >
+        <X size={16} />
+      </button>
+    )}
+  </div>
+</div>
+
+
       </div>
 
       {/* Render Users Table */}
@@ -120,71 +188,83 @@ const handleViewUser = (user) => navigate(`/app/user-details`, { state: { user }
       ) : (
         <div className="overflow-x-auto bg-white shadow-md rounded-lg">
           <table className="w-full text-left table-auto">
-            <thead>
-              <tr className="bg-gray-100 border-b">
-                <th className="py-6 px-4 text-sm font-semibold text-gray-600">Profile</th>
-                <th className="py-6 px-4 text-sm font-semibold text-gray-600">Email</th>
-                <th className="py-6 px-4 text-sm font-semibold text-gray-600">Address</th>
-                <th className="py-6 px-4 text-sm font-semibold text-gray-600">Supervisor</th>
-                <th className="py-6 px-4 text-sm font-semibold text-gray-600">Membership Number</th>
-                <th className="py-6 px-4 text-sm font-semibold text-gray-600">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user._id} className="border-b hover:bg-gray-50 transition-all">
-                 <td className="py-4 px-4 text-sm text-gray-800 flex items-center gap-3">
-  {user.profilePicture ? (
-    <img
-      src={user.profilePicture}
-      alt={user.name}
-      className="w-12 h-12 rounded-full object-cover"
-    />
-  ) : (
-    <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm">
-      {user.name
-        .split(' ')
-        .map((word) => word[0])
-        .slice(0, 2) // Get the initials (first 2 letters)
-        .join('')
-        .toUpperCase()}
-    </div>
-  )}
-  <span>{user.name}</span>
+           <thead>
+  <tr className="bg-gray-100 border-b">
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Profile</th>
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Email</th>
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Address</th>
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Supervisor</th>
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Membership Number</th>
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Status</th> {/* ✅ New */}
+    <th className="py-6 px-4 text-sm font-semibold text-gray-600">Actions</th>
+  </tr>
+</thead>
+<tbody>
+  {users.map((user) => (
+    <tr key={user._id} className="border-b hover:bg-gray-50 transition-all">
+      {/* Profile */}
+      <td className="py-4 px-4 text-sm text-gray-800 flex items-center gap-3">
+        {user.profilePicture ? (
+          <img
+            src={user.profilePicture}
+            alt={user.name}
+            className="w-12 h-12 rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm">
+            {user.name
+              .split(' ')
+              .map((word) => word[0])
+              .slice(0, 2)
+              .join('')
+              .toUpperCase()}
+          </div>
+        )}
+        <span>{user.name}</span>
+      </td>
+
+      {/* Email */}
+      <td className="py-2 px-4 text-sm text-gray-800">{user.email}</td>
+
+      {/* Address */}
+      <td className="py-2 px-4 text-sm text-gray-800">{user.address || 'Not Available'}</td>
+
+      {/* Supervisor */}
+      <td className="py-2 px-4 text-sm text-gray-800">{user.supervisor}</td>
+
+      {/* Membership Number */}
+      <td className="py-2 px-4 text-sm text-gray-800">{user.membershipNumber}</td>
+
+      {/* Status */}
+      {/* Status */}
+<td className="py-2 px-4 text-sm">
+  <span
+    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+      user.isDeactivatedByAdmin
+        ? 'bg-red-100 text-red-700'   // Inactive
+        : 'bg-green-100 text-green-700' // Active
+    }`}
+  >
+    {user.isDeactivatedByAdmin ? 'Inactive' : 'Active'}
+  </span>
 </td>
 
-                  <td className="py-2 px-4 text-sm text-gray-800">{user.email}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">{user.address || 'Not Available'}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">{user.supervisor}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">{user.membershipNumber}</td>
-                  <td className="py-2 px-4 text-sm text-gray-800">
-                    <div className="flex gap-3">
-                      {/* <button
-                        onClick={() => openEditModal(user)}
-                        className="px-3 py-1 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white border rounded-md"
-                      >
-                        Edit
-                      </button> */}
 
-                       <button
-                       onClick={() => handleViewUser(user)}
-                       className="px-3 py-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white border rounded-md"
-                     >
-                       <FaRegEye />
-                     </button>
+      {/* Actions */}
+      <td className="py-2 px-4 text-sm text-gray-800">
+        <div className="flex gap-3">
+          <button
+            onClick={() => handleViewUser(user)}
+            className="px-3 py-2 border-blue-500 text-blue-500 hover:bg-blue-500 hover:text-white border rounded-md"
+          >
+            <FaRegEye />
+          </button>
+        </div>
+      </td>
+    </tr>
+  ))}
+</tbody>
 
-                      {/* <button
-                        onClick={() => openDeleteModal(user)}
-                        className="px-3 py-2 border-red-500 text-red-500 hover:bg-red-500 hover:text-white border rounded-md"
-                      >
-                        <AiOutlineDelete className='text-md' />
-
-                      </button> */}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
           </table>
         </div>
       )}
