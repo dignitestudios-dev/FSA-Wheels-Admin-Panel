@@ -136,6 +136,7 @@ const [declineError, setDeclineError] = useState('');
   }
 };
 
+          console.log("reservation.cancellationReason", reservation.cancellationReason);
 
   return (
     <div className="min-h-screen p-6 pt-0">
@@ -234,6 +235,28 @@ const [declineError, setDeclineError] = useState('');
     <GiPathDistance className="text-blue-600" />
     Total Distance: <strong>{reservation.totalDistance || 0} km</strong>
   </div>
+
+
+
+{
+  reservation.cancellationReason &&
+   (
+    <div className="col-span-2 bg-orange-50 border-l-4 border-orange-500 rounded-md p-4 flex items-start gap-3 shadow-sm">
+      <div className="flex-shrink-0">
+        <TiWarning className="text-2xl text-orange-600 mt-0.5" />
+      </div>
+      <div>
+        <h4 className="text-sm font-semibold text-orange-800 mb-1">
+          Cancellation Reason
+        </h4>
+        <p className="text-sm text-orange-700 leading-snug">
+          {reservation.cancellationReason}
+        </p>
+      </div>
+    </div>
+    
+)}
+
 
   {/* CONDITIONAL REASON */}
   {reservation.isUnableToReturn && reservation.reasonToUnableToReturn && (

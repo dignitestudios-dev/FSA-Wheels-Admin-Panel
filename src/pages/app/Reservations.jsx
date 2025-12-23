@@ -55,18 +55,21 @@ const Reservations = () => {
   };
   console.log("Reservations:", reservations);
 
-  const handleExportCSV = async () => {
+const handleExportCSV = async () => {
   try {
-    const res = await axios.get('/admin/report/download', {
-      responseType: 'blob', // 👈 required for file download
-    });
+    const res = await axios.get(
+      `/admin/report/download?status=${activeTab}`,
+      {
+        responseType: "blob", // required for file download
+      }
+    );
 
-    const blob = new Blob([res.data], { type: 'text/csv' });
+    const blob = new Blob([res.data], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
 
-    const link = document.createElement('a');
+    const link = document.createElement("a");
     link.href = url;
-    link.download = `reservations-report-${Date.now()}.csv`;
+    link.download = `reservations-${activeTab}-${Date.now()}.csv`;
 
     document.body.appendChild(link);
     link.click();
@@ -74,7 +77,7 @@ const Reservations = () => {
 
     window.URL.revokeObjectURL(url);
   } catch (error) {
-    console.error('CSV export failed:', error);
+    console.error("CSV export failed:", error);
   }
 };
 
