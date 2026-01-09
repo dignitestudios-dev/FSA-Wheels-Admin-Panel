@@ -10,12 +10,14 @@ import {
 import { BsClockHistory } from "react-icons/bs";
 import { IoCarSportOutline } from "react-icons/io5";
 import { MdAirlineSeatReclineExtra } from "react-icons/md";
-import { GiPathDistance } from "react-icons/gi";
+import { GiPathDistance, GiSeaTurtle } from "react-icons/gi";
 import { TiWarning } from "react-icons/ti";
 import { SiTicktick } from "react-icons/si";
 import axios from "../../axios";
 import { SuccessToast, ErrorToast } from "../../components/global/Toaster";
 import { audi } from "../../assets/export";
+import { PiOfficeChairFill } from "react-icons/pi";
+
 
 const ReservationDetails = () => {
   const { state: reservation } = useLocation();
@@ -234,6 +236,10 @@ const [declineError, setDeclineError] = useState('');
   <div className="flex items-center gap-2">
     <GiPathDistance className="text-blue-600" />
     Total Distance: <strong>{reservation.totalDistance || 0} km</strong>
+  </div>
+<div className="flex items-center gap-2">
+    <PiOfficeChairFill  className="text-blue-600" />
+    Requested Seat Type: <strong>{reservation.requestedSeatType || 0} km</strong>
   </div>
 
 
