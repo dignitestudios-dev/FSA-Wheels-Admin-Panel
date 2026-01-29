@@ -44,7 +44,7 @@ const DummyHome = () => {
       <h1 className="text-3xl font-semibold text-gray-800 mb-6">Dashboard</h1>
 
       {/* ===================== STATS GRID ===================== */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {loading ? (
           Array(5)
             .fill(0)
@@ -76,11 +76,11 @@ const DummyHome = () => {
               value={stats.sos}
               icon={<FaBell className="text-4xl text-red-500" />}
             />
-            <StatCard
+            {/* <StatCard
               title="Rides"
               value={stats.rides}
               icon={<FaCarSide className="text-4xl text-green-600" />}
-            />
+            /> */}
             <StatCard
               title="Active Reservations"
               value={stats.activeReservations}

@@ -150,27 +150,36 @@ const Inventory = () => {
     }
   };
 
-  const handleDeleteCar = async () => {
-    if (!deleteCarId) return;
+ const handleDeleteCar = async () => {
+  if (!deleteCarId) return;
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
-      const response = await axios.delete(`/vehicles/${deleteCarId}`);
-      if (response.data.success) {
-        SuccessToast("Vehicle deleted successfully!");
-        showDeleteModal(false);
-        setCars((prevCars) => prevCars.filter((car) => car._id !== deleteCarId));
-      } else {
-        ErrorToast("Failed to delete vehicle.");
-      }
-    } catch (error) {
-      ErrorToast("An error occurred while deleting the vehicle.");
-    } finally {
-      setLoading(false);
+  try {
+    const response = await axios.delete(`/vehicles/${deleteCarId}`);
+
+    if (response.data.success) {
+      SuccessToast("Vehicle deleted successfully!");
+
+      // Close both modals
       setShowDeleteModal(false);
+      setSelectedCar(null);
+
+      // Refresh list
+      await fetchCars();
+    } else {
+      ErrorToast("Failed to delete vehicle. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("Error deleting vehicle:", error);
+    ErrorToast("An error occurred while deleting the vehicle.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
 
   const openEditModal = (car) => {
     setSelectedCar(car);
