@@ -32,11 +32,11 @@ export const sidebarData = [
     link: "/app/reservations",
   },
 
- {
-    title: "Create User",
-    icon: <UserPlus />,
-    link: "/app/create-user",
-  },
+//  {
+//     title: "Create User",
+//     icon: <UserPlus />,
+//     link: "/app/create-user",
+//   },
 
   {
     title: "SOS Requests",
