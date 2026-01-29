@@ -6,7 +6,6 @@ import { SuccessToast } from "../../components/global/Toaster";
 const UserDetails = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
-  
 
   const [user, setUser] = useState(state?.user || null);
 
@@ -26,6 +25,9 @@ const UserDetails = () => {
     membershipNumber: "",
     drivingLicenseNumber: "",
     insuranceCompany: "",
+    drivingLicenseFrontImage: null,
+    drivingLicenseBackImage: null,
+    insuranceCertificateImage: null,
   });
 
   useEffect(() => {
@@ -39,6 +41,9 @@ const UserDetails = () => {
       membershipNumber: user.membershipNumber || "",
       drivingLicenseNumber: user.drivingLicenseNumber || "",
       insuranceCompany: user.insuranceCompany || "",
+      drivingLicenseFrontImage: null,
+      drivingLicenseBackImage: null,
+      insuranceCertificateImage: null,
     });
   }, [user]);
 
@@ -58,12 +63,10 @@ const UserDetails = () => {
   // TOGGLE STATUS API CALL
   const toggleStatus = async () => {
     setLoadingStatus(true);
-
     try {
       const response = await axios.patch(`/user/${user._id}/status`);
       setUser(response.data.data);
       SuccessToast("Status updated successfully");
-        // Redirect after update
       navigate("/app/users");
       setShowDeactivateModal(false);
     } catch (error) {
@@ -87,18 +90,26 @@ const UserDetails = () => {
       formData.append("drivingLicenseNumber", editForm.drivingLicenseNumber);
       formData.append("insuranceCompany", editForm.insuranceCompany);
 
+      // ADD DOCUMENTS ONLY IF USER SELECTED NEW ONES
+      if (editForm.drivingLicenseFrontImage) {
+        formData.append("drivingLicenseFrontImage", editForm.drivingLicenseFrontImage);
+      }
+      if (editForm.drivingLicenseBackImage) {
+        formData.append("drivingLicenseBackImage", editForm.drivingLicenseBackImage);
+      }
+      if (editForm.insuranceCertificateImage) {
+        formData.append("insuranceCertificateImage", editForm.insuranceCertificateImage);
+      }
+
       const response = await axios.put(`/user/${user._id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
 
-      // Update state with returned data
       setUser(response.data.data);
-
       SuccessToast("User updated successfully!");
-            navigate("/app/users");
-
+      navigate("/app/users");
       setShowEditModal(false);
     } catch (error) {
       console.error("Update failed", error);
@@ -114,7 +125,6 @@ const UserDetails = () => {
         <h2 className="text-3xl font-bold text-gray-900">User Profile</h2>
 
         <div className="flex gap-3">
-          {/* EDIT BUTTON */}
           <button
             onClick={() => setShowEditModal(true)}
             className="px-4 py-2 rounded-full bg-blue-600 text-white font-semibold hover:bg-blue-700 transition"
@@ -122,7 +132,6 @@ const UserDetails = () => {
             Edit User
           </button>
 
-          {/* STATUS BUTTON */}
           <button
             onClick={() => setShowDeactivateModal(true)}
             className={`px-4 py-2 rounded-full text-sm font-semibold transition ${
@@ -174,6 +183,7 @@ const UserDetails = () => {
             <h3 className="text-lg font-semibold mb-4">Edit User</h3>
 
             <div className="space-y-3">
+              {/* TEXT FIELDS */}
               <input
                 value={editForm.name}
                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
@@ -235,6 +245,66 @@ const UserDetails = () => {
                 className="w-full border border-gray-300 rounded-lg p-2"
                 placeholder="Insurance Company"
               />
+
+              {/* DOCUMENTS */}
+              <div className="pt-3 space-y-3">
+                <label className="text-sm font-semibold">Driving License Front</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      drivingLicenseFrontImage: e.target.files[0],
+                    })
+                  }
+                />
+                {user.drivingLicenseFrontImage && (
+                  <img
+                    src={user.drivingLicenseFrontImage}
+                    alt="Front"
+                    className="w-36 h-24 object-cover border rounded-lg mt-2"
+                  />
+                )}
+
+                <label className="text-sm font-semibold">Driving License Back</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      drivingLicenseBackImage: e.target.files[0],
+                    })
+                  }
+                />
+                {user.drivingLicenseBackImage && (
+                  <img
+                    src={user.drivingLicenseBackImage}
+                    alt="Back"
+                    className="w-36 h-24 object-cover border rounded-lg mt-2"
+                  />
+                )}
+
+                <label className="text-sm font-semibold">Insurance Certificate</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      insuranceCertificateImage: e.target.files[0],
+                    })
+                  }
+                />
+                {user.insuranceCertificateImage && (
+                  <img
+                    src={user.insuranceCertificateImage}
+                    alt="Insurance"
+                    className="w-40 h-28 object-cover border rounded-lg mt-2"
+                  />
+                )}
+              </div>
             </div>
 
             <div className="flex justify-end gap-4 mt-4">

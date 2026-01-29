@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaUsers, FaTrash } from "react-icons/fa";
-import axios from "../../axios"; // Import axios instance
-import { ErrorToast, SuccessToast } from "../../components/global/Toaster"; // Import your toaster functions
-import AddCarModal from "../../components/AddCarModal"; // Import the AddCarModal component
-import CustomLoader from "../../components/global/CustomLoader"; // Import the CustomLoader component
+import { FaUsers, FaTrash, FaEdit, FaTimes } from "react-icons/fa";
+import axios from "../../axios";
+import { ErrorToast, SuccessToast } from "../../components/global/Toaster";
+import AddCarModal from "../../components/AddCarModal";
+import CustomLoader from "../../components/global/CustomLoader";
 
 const Inventory = () => {
   const [cars, setCars] = useState([]);
@@ -18,9 +18,16 @@ const Inventory = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true); // Fetching state for custom skeleton loader
-  const [deleteCarId, setDeleteCarId] = useState(null); // Store car id for deletion
-  const [showDeleteModal, setShowDeleteModal] = useState(false); // Show/hide delete confirmation modal
+  const [isFetching, setIsFetching] = useState(true);
+
+  // Selected car view modal
+  const [selectedCar, setSelectedCar] = useState(null);
+
+  // Edit mode state
+  const [isEditMode, setIsEditMode] = useState(false);
+
+  const [deleteCarId, setDeleteCarId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const fetchCars = async () => {
     try {
@@ -31,10 +38,9 @@ const Inventory = () => {
         ErrorToast("Failed to fetch vehicles.");
       }
     } catch (error) {
-      console.error("Error fetching vehicles:", error);
       ErrorToast("An error occurred while fetching vehicles.");
     } finally {
-      setIsFetching(false); // Stop loading after fetching
+      setIsFetching(false);
     }
   };
 
@@ -42,7 +48,6 @@ const Inventory = () => {
     fetchCars();
   }, []);
 
-  // Handle input changes for Add Car Modal
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewCar((prevCar) => ({
@@ -51,18 +56,16 @@ const Inventory = () => {
     }));
   };
 
-  // Handle file change for image upload
   const handleFileChange = (e) => {
-    const file = e.target.files[0]; // Only take the first file (single image)
+    const file = e.target.files[0];
     if (file) {
       setNewCar((prevCar) => ({
         ...prevCar,
-        images: [file], // Store the single image file in the array
+        images: [file],
       }));
     }
   };
 
-  // Handle remove image (if applicable)
   const handleRemoveImage = (index) => {
     const updatedImages = newCar.images.filter((_, i) => i !== index);
     setNewCar((prevCar) => ({
@@ -71,6 +74,7 @@ const Inventory = () => {
     }));
   };
 
+  // ADD CAR
   const handleAddCar = async () => {
     if (!newCar.name || !newCar.type || !newCar.passengers || !newCar.images[0]) {
       ErrorToast("Please fill all fields and upload an image.");
@@ -82,16 +86,14 @@ const Inventory = () => {
     const formData = new FormData();
     formData.append("vehicleName", newCar.name);
     formData.append("vehicleType", newCar.type);
-formData.append("make", newCar.make);  // Use dynamic value
-  formData.append("model", newCar.model); // Use dynamic value
+    formData.append("make", newCar.make);
+    formData.append("model", newCar.model);
     formData.append("seats", Number(newCar.passengers));
     formData.append("image", newCar.images[0]);
 
     try {
       const response = await axios.post("/vehicles", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       if (response.data.success) {
@@ -100,19 +102,49 @@ formData.append("make", newCar.make);  // Use dynamic value
         setNewCar({ name: "", make: "", model: "", type: "", passengers: "", images: [] });
         fetchCars();
       } else {
-        // Handle validation errors or general errors
-        if (response.data.errors) {
-          // Example: Handle validation errors like "Seats must be at least 2"
-          response.data.errors.forEach((error) => {
-            ErrorToast(error.message);  // Show specific error message to the user
-          });
-        } else {
-          ErrorToast("An unknown error occurred.");
-        }
+        ErrorToast("An unknown error occurred.");
       }
     } catch (error) {
-      console.error("Error adding vehicle:", error);
       ErrorToast("An error occurred while adding the vehicle.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // EDIT CAR
+  const handleEditCar = async () => {
+    if (!selectedCar || !selectedCar._id) return;
+
+    setLoading(true);
+
+    const formData = new FormData();
+    formData.append("vehicleName", newCar.name);
+    formData.append("vehicleType", newCar.type);
+    formData.append("make", newCar.make);
+    formData.append("model", newCar.model);
+    formData.append("seats", Number(newCar.passengers));
+
+    // Only update image if user uploads new one
+    if (newCar.images[0]) {
+      formData.append("image", newCar.images[0]);
+    }
+
+    try {
+      const response = await axios.put(`/vehicles/${selectedCar._id}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      if (response.data.success) {
+        SuccessToast("Vehicle updated successfully!");
+        setIsModalOpen(false);
+        setIsEditMode(false);
+        setSelectedCar(null);
+        fetchCars();
+      } else {
+        ErrorToast("Failed to update vehicle.");
+      }
+    } catch (error) {
+      ErrorToast("An error occurred while updating the vehicle.");
     } finally {
       setLoading(false);
     }
@@ -127,90 +159,138 @@ formData.append("make", newCar.make);  // Use dynamic value
       const response = await axios.delete(`/vehicles/${deleteCarId}`);
       if (response.data.success) {
         SuccessToast("Vehicle deleted successfully!");
+        showDeleteModal(false);
         setCars((prevCars) => prevCars.filter((car) => car._id !== deleteCarId));
       } else {
         ErrorToast("Failed to delete vehicle.");
       }
     } catch (error) {
-      console.error("Error deleting vehicle:", error);
       ErrorToast("An error occurred while deleting the vehicle.");
     } finally {
       setLoading(false);
-      setShowDeleteModal(false); // Close the delete modal
+      setShowDeleteModal(false);
     }
+  };
+
+  const openEditModal = (car) => {
+    setSelectedCar(car);
+    setIsEditMode(true);
+
+    // Prefill data
+    setNewCar({
+      name: car.vehicleName,
+      make: car.make,
+      model: car.model,
+      type: car.vehicleType,
+      passengers: car.seats,
+      images: [],
+    });
+
+    setIsModalOpen(true);
   };
 
   return (
     <div>
-      {/* Header with Button */}
       <div className="p-6 pt-0 col-span-3 flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-800">Inventory Management</h1>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setIsEditMode(false);
+            setNewCar({ name: "", make: "", model: "", type: "", passengers: "", images: [] });
+            setIsModalOpen(true);
+          }}
           className="bg-blue-600 text-white py-2 px-6 rounded-xl shadow-md hover:bg-blue-700"
         >
           Add Inventory
         </button>
       </div>
 
-         {isFetching ? (
-        // Display Custom Skeleton Loader while fetching data
+      {isFetching ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-6 p-6 pt-0">
           {Array.from({ length: 8 }).map((_, index) => (
             <CustomLoader key={index} />
           ))}
         </div>
       ) : cars.length === 0 ? (
-        // Show "No inventory available" if no cars are fetched
-        <div className="p-6 text-center text-gray-500 ">
-          No inventory available
-        </div>
+        <div className="p-6 text-center text-gray-500">No inventory available</div>
       ) : (
         <div className="p-6 pt-0 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-  {/* Car Cards */}
-  {cars.map((car) => (
-    <div
-      key={car._id}
-      className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg hover:shadow-2xl relative flex flex-col"
-    >
-      {/* Delete Button */}
-      <button
-        onClick={() => {
-          setDeleteCarId(car._id);
-          setShowDeleteModal(true);
-        }}
-        className="absolute top-2 right-2 flex items-center gap-2 bg-red-500 text-white rounded-full p-2 hover:bg-red-600 shadow-lg transition-colors duration-300"
-      >
-      <span className="text-xs">Delete</span>  <FaTrash className="text-xs" />
-      </button>
-
-      {/* Car Image */}
-      <img
-        src={car.image}
-        alt={car.vehicleName}
-        className="w-full h-48 object-contain rounded-t-2xl"
-      />
-
-      {/* Car Details */}
-      <div className="p-6 flex flex-col justify-between">
-        <h2 className="text-2xl font-semibold text-gray-800">{car.vehicleName}</h2>
-        <div className="text-sm text-gray-600 space-y-2">
-          <p className="font-medium text-gray-500">Type: {car.vehicleType}</p>
-          <p className="font-medium text-gray-500">Make: {car.make}</p>
-          <p className="font-medium text-gray-500">Model: {car.model}</p>
-          <div className="flex font-medium items-center gap-2 text-gray-500">
-            Seats : <FaUsers className="text-blue-600 text-lg" />
-            <span>{car.seats}</span>
-          </div>
+          {cars.map((car) => (
+            <div
+              key={car._id}
+              onClick={() => setSelectedCar(car)}
+              className="bg-white rounded-2xl border border-gray-200 overflow-hidden shadow-lg hover:shadow-2xl cursor-pointer relative flex flex-col"
+            >
+              <img
+                src={car.image}
+                alt={car.vehicleName}
+                className="w-full h-48 object-contain rounded-t-2xl"
+              />
+              <div className="p-6 flex flex-col justify-between">
+                <h2 className="text-2xl font-semibold text-gray-800">{car.vehicleName}</h2>
+                <div className="text-sm text-gray-600 space-y-2">
+                  <p className="font-medium text-gray-500">Type: {car.vehicleType}</p>
+                  <p className="font-medium text-gray-500">Make: {car.make}</p>
+                  <p className="font-medium text-gray-500">Model: {car.model}</p>
+                  <div className="flex font-medium items-center gap-2 text-gray-500">
+                    Seats : <FaUsers className="text-blue-600 text-lg" />
+                    <span>{car.seats}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
-      </div>
-    </div>
-  ))}
-</div>
-
       )}
 
-      {/* Delete Confirmation Modal */}
+      {/* VIEW MODAL */}
+      {selectedCar && !isEditMode && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl p-6 w-96 relative">
+            <button
+              onClick={() => setSelectedCar(null)}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+            >
+              <FaTimes />
+            </button>
+
+            <img
+              src={selectedCar.image}
+              alt={selectedCar.vehicleName}
+              className="w-full h-52 object-contain rounded-xl mb-4"
+            />
+
+            <h3 className="text-xl font-bold text-gray-800">{selectedCar.vehicleName}</h3>
+            <p className="text-gray-600 mt-2">Type: {selectedCar.vehicleType}</p>
+            <p className="text-gray-600">Make: {selectedCar.make}</p>
+            <p className="text-gray-600">Model: {selectedCar.model}</p>
+            <p className="text-gray-600 flex items-center gap-2">
+              Seats: <FaUsers className="text-blue-600" /> {selectedCar.seats}
+            </p>
+
+            <div className="flex justify-between mt-6">
+              <button
+                onClick={() => openEditModal(selectedCar)}
+                className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              >
+                <FaEdit /> Edit
+              </button>
+
+              <button
+                onClick={() => {
+                  setDeleteCarId(selectedCar._id);
+                  setShowDeleteModal(true);
+                }}
+                className="bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 flex items-center gap-2"
+              >
+                <FaTrash /> Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION */}
       {showDeleteModal && (
         <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg shadow-lg p-6 w-80">
@@ -236,16 +316,21 @@ formData.append("make", newCar.make);  // Use dynamic value
         </div>
       )}
 
-      {/* Modal should be outside conditional rendering to prevent issues */}
+      {/* ADD / EDIT MODAL */}
       <AddCarModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setIsEditMode(false);
+          setSelectedCar(null);
+        }}
         newCar={newCar}
         handleInputChange={handleInputChange}
         handleFileChange={handleFileChange}
         handleRemoveImage={handleRemoveImage}
-        handleAddCar={handleAddCar}
+        handleAddCar={isEditMode ? handleEditCar : handleAddCar}
         loading={loading}
+        isEditMode={isEditMode}
       />
     </div>
   );
