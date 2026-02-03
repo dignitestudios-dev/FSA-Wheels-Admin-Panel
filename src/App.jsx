@@ -28,6 +28,7 @@ import Sos from "./pages/app/Sos";
 import TermsandConditions from "./pages/app/TermsandConditions";
 import PrivacyPolicy from "./pages/app/PrivacyPolicy";
 import InventoryDetails from "./pages/app/InventoryDetails";
+import Requests from "./pages/app/Requests";
 
 function App() {
   return (
@@ -48,6 +49,7 @@ function App() {
           <Route path="ride-details" element={<RideDetails />} />
           <Route path="sos" element={<Sos />} />
 <Route path="/app/inventory/:id" element={<InventoryDetails />} />
+          <Route path="/app/requests" element={<Requests />} />
 
         </Route>
       </Route>

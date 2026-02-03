@@ -1,5 +1,5 @@
 
-import { Blocks } from 'lucide-react';
+import { Blocks, NotepadText } from 'lucide-react';
 import { User } from 'lucide-react';
 import { Car } from 'lucide-react';
 import { UserPlus } from 'lucide-react';
@@ -38,6 +38,12 @@ export const sidebarData = [
 //     link: "/app/create-user",
 //   },
 
+
+{
+    title: "Requests",
+    icon: <NotepadText  />,
+    link: "/app/requests",
+  },
   {
     title: "SOS Requests",
     icon: <Info />,

@@ -1,9 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { onMessageListener } from "../firebase/messages";
-import getFCMToken from "../firebase/getFcmToken";
-import Cookies from "js-cookie";
+
 import axios from "../axios";
 
 export const AppContext = createContext();
@@ -46,12 +43,38 @@ export const AppContextProvider = ({ children }) => {
   //   })
   //   .catch((err) => console.log("failed: ", err));
 
+
+    const [requestslength, setRequestslength] = useState([]);
+
+      useEffect(() => {
+    const fetchPendingRequests = async () => {
+
+      try {
+        const response = await axios.get(
+          "/admin/reservations?status=pending"
+        );
+
+        if (response.data.success && Array.isArray(response.data.data)) {
+          setRequestslength(response.data.data);
+        }
+      } catch (err) {
+        console.error("Error fetching requests:", err);
+        
+      }
+    };
+
+    fetchPendingRequests();
+  }, []);
+    
+
   const dummyVar = null;
 
   return (
     <AppContext.Provider
       value={{
         dummyVar,
+        requestslength,
+        setRequestslength,
       }}
     >
       {children}

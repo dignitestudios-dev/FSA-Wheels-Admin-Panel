@@ -1,11 +1,13 @@
 import { NavLink, useNavigate } from "react-router";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { sidebarData } from "../../static/Sidebar";
 import { LogOut } from "lucide-react";
+import { AppContext } from "../../context/AppContext";
 
 const DummySidebar = () => {
   const navigate = useNavigate();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const requests = useContext(AppContext).requestslength;
 
   const handleLogout = () => {
     // ✅ Clear all cookies
@@ -42,7 +44,7 @@ const DummySidebar = () => {
           >
             {sidebar?.icon}
           </div>
-          <span className="font-medium">{sidebar?.title}</span>
+          <span className="font-medium">{sidebar?.title === "Requests" ? `${sidebar?.title} (${requests?.length})` : sidebar?.title}</span>
         </NavLink>
       ))}
 
