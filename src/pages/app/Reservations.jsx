@@ -15,7 +15,7 @@ const Reservations = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const tabs = ["pending", "approved", "rejected", "cancelled", "completed","issues"];
+  const tabs = ["approved", "rejected", "cancelled", "completed","issues"];
 
   useEffect(() => {
     const fetchReservations = async () => {

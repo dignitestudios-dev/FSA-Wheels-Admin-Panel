@@ -90,7 +90,7 @@ const [declineError, setDeclineError] = useState('');
       if (res.data.success) {
         SuccessToast("Reservation approved successfully!");
         closeApproveModal();
-        setTimeout(() => navigate("/app/reservations"), 1000);
+        setTimeout(() => navigate("/app/requests"), 1000);
       } else {
         ErrorToast(res.data.message || "Failed to approve reservation.");
       }
@@ -126,7 +126,7 @@ const [declineError, setDeclineError] = useState('');
       setDeclineReason('');
       setDeclineError('');
       closeDeclineModal();
-      setTimeout(() => navigate('/app/reservations'), 1000);
+      setTimeout(() => navigate('/app/requests'), 1000);
     } else {
       ErrorToast(res.data.message || 'Failed to decline reservation.');
     }
