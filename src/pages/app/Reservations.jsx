@@ -9,7 +9,7 @@ import CustomLoader from "../../components/global/CustomLoader";
 import { Download } from "lucide-react";
 
 const Reservations = () => {
-  const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("approved");
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
