@@ -238,9 +238,17 @@ const [declineError, setDeclineError] = useState('');
     Total Distance: <strong>{reservation.totalDistance || 0} km</strong>
   </div>
 <div className="flex items-center gap-2">
-    <PiOfficeChairFill  className="text-blue-600" />
-    Requested Seat Type: <strong>{reservation.requestedSeatType || 0} km</strong>
-  </div>
+  <PiOfficeChairFill className="text-blue-600" />
+  Requested Seat Type:
+  <strong>
+    {typeof reservation.requestedSeatType === "string"
+      ? reservation.requestedSeatType
+      : Array.isArray(reservation.requestedSeatType)
+      ? reservation.requestedSeatType.join(", ")
+      : ""}
+  </strong>
+</div>
+
 
 
 
