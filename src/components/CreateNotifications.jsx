@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { FiLoader } from "react-icons/fi";
-import { ChevronDown, Users } from "lucide-react";
+import { ChevronDown, Users, Search } from "lucide-react";
 import axios from "../axios";
 import { SuccessToast, ErrorToast } from "../components/global/Toaster";
 
@@ -20,6 +20,9 @@ const CreateNotifications = ({ closeModal }) => {
   // Dropdown
   const [showUsersDropdown, setShowUsersDropdown] = useState(false);
   const dropdownRef = useRef(null);
+
+  // Search
+  const [search, setSearch] = useState("");
 
   // ---------------- FETCH USERS ----------------
   useEffect(() => {
@@ -74,6 +77,17 @@ const CreateNotifications = ({ closeModal }) => {
         : [...prev, userId]
     );
   };
+
+  // ---------------- FILTER USERS (FRONTEND SEARCH) ----------------
+  const filteredUsers = useMemo(() => {
+    if (!search.trim()) return users;
+
+    return users.filter((user) =>
+      `${user.name} ${user.email}`
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
+  }, [users, search]);
 
   // ---------------- SUBMIT ----------------
   const handleSubmit = async (e) => {
@@ -176,30 +190,52 @@ const CreateNotifications = ({ closeModal }) => {
 
         {/* Dropdown */}
         {showUsersDropdown && (
-          <div className="absolute z-50 mb-4 w-full bg-white border rounded-lg shadow-lg max-h-60 overflow-y-auto">
-            {loadingUsers ? (
-              <p className="text-sm text-gray-500 p-3">Loading users...</p>
-            ) : users.length === 0 ? (
-              <p className="text-sm text-gray-500 p-3">No users found</p>
-            ) : (
-              users.map((user) => (
-                <label
-                  key={user._id}
-                  className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedUserIds.includes(user._id)}
-                    onChange={() => toggleUserSelection(user._id)}
-                    className="accent-blue-600"
-                  />
-                  <div>
-                    <p className="text-sm font-medium">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                </label>
-              ))
-            )}
+          <div className="absolute z-50 mt-2 w-full bg-white border rounded-lg shadow-lg">
+            {/* Search */}
+            <div className="p-2 border-b">
+              <div className="relative">
+                <Search
+                  size={16}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+                />
+                <input
+                  type="text"
+                  placeholder="Search users..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-sm border rounded-md focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            {/* Users List */}
+            <div className="max-h-52 overflow-y-auto">
+              {loadingUsers ? (
+                <p className="text-sm text-gray-500 p-3">Loading users...</p>
+              ) : filteredUsers.length === 0 ? (
+                <p className="text-sm text-gray-500 p-3">
+                  No users match your search
+                </p>
+              ) : (
+                filteredUsers.map((user) => (
+                  <label
+                    key={user._id}
+                    className="flex items-center gap-3 px-4 py-2 hover:bg-gray-50 cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedUserIds.includes(user._id)}
+                      onChange={() => toggleUserSelection(user._id)}
+                      className="accent-blue-600"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{user.name}</p>
+                      <p className="text-xs text-gray-500">{user.email}</p>
+                    </div>
+                  </label>
+                ))
+              )}
+            </div>
           </div>
         )}
 
