@@ -29,6 +29,7 @@ import TermsandConditions from "./pages/app/TermsandConditions";
 import PrivacyPolicy from "./pages/app/PrivacyPolicy";
 import InventoryDetails from "./pages/app/InventoryDetails";
 import Requests from "./pages/app/Requests";
+import VehiclePolicy from "./pages/app/vehiclepolicy";
 
 function App() {
   return (
@@ -68,6 +69,7 @@ function App() {
               
               <Route path="termsandconditions" element={<TermsandConditions />} />
               <Route path="privacypolicy" element={<PrivacyPolicy />} />
+              <Route path="vehiclepolicy" element={<VehiclePolicy />} />
 
 
       {/* 404 Fallback */}

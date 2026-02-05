@@ -233,10 +233,10 @@ const [declineError, setDeclineError] = useState('');
 
 
   </div>
-  <div className="flex items-center gap-2">
+  {/* <div className="flex items-center gap-2">
     <GiPathDistance className="text-blue-600" />
     Total Distance: <strong>{reservation.totalDistance || 0} km</strong>
-  </div>
+  </div> */}
 <div className="flex items-center gap-2">
   <PiOfficeChairFill className="text-blue-600" />
   Requested Seat Type:
