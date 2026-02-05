@@ -29,7 +29,7 @@ import TermsandConditions from "./pages/app/TermsandConditions";
 import PrivacyPolicy from "./pages/app/PrivacyPolicy";
 import InventoryDetails from "./pages/app/InventoryDetails";
 import Requests from "./pages/app/Requests";
-import VehiclePolicy from "./pages/app/vehiclepolicy";
+import VehiclePolicy from "./pages/app/Vehiclepolicy";
 
 function App() {
   return (
