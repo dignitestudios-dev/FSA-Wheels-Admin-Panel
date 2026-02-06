@@ -107,7 +107,7 @@ const CreateNotifications = ({ closeModal }) => {
       };
 
       if (selectedUserIds.length > 0) {
-        payload.userids = selectedUserIds;
+      payload.userIds = selectedUserIds;
       }
 
       const response = await axios.post(
