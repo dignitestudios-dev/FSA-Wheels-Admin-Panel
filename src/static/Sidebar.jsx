@@ -56,11 +56,11 @@ export const sidebarData = [
   //   link: "/app/rides",
   // },
 
-  { 
-    title: "Push Notifications",
-    icon: <Bell />,
-    link: "/app/notifications",
-  },
+  // { 
+  //   title: "Push Notifications",
+  //   icon: <Bell />,
+  //   link: "/app/notifications",
+  // },
 
   
 ];

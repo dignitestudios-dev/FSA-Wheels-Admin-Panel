@@ -118,7 +118,7 @@ const CreateNotifications = ({ closeModal }) => {
       if (response.status === 200) {
         SuccessToast("Notification sent successfully!");
         closeModal();
-        window.location.reload();
+        // window.location.reload();
       }
     } catch (error) {
       console.error(error);
