@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { FaUsers, FaCalendarCheck, FaBell } from "react-icons/fa";
 import { useNavigate } from "react-router";
-import DashboardUsers from "../../components/DashboardUsers";
 import axios from "../../axios";
 import CreateNotifications from "../../components/CreateNotifications";
+import Requests from "./Requests";
 
 /* ===================== STAT CARD COMPONENT ===================== */
 const StatCard = ({ title, value, icon }) => (
@@ -112,7 +112,7 @@ const DummyHome = () => {
       </div>
 
       {/* ===================== USERS TABLE ===================== */}
-      <DashboardUsers />
+      <Requests />
 
       {/* ===================== CREATE NOTIFICATION MODAL ===================== */}
       {showNotificationModal && (
