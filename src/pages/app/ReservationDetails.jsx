@@ -211,7 +211,7 @@ const [declineError, setDeclineError] = useState('');
 <div className="p-6 bg-gray-50 grid md:grid-cols-2 gap-3 text-gray-700 border-b">
   <div className="flex items-center gap-2">
     <FaUsers className="text-blue-500" />
-    {reservation.vehicleSeat} Seats
+    <span className="font-bold">Passenger Seats: </span> {reservation.vehicleSeat} 
   </div>
   <div className="flex items-center gap-2">
     <BsClockHistory className="text-orange-500" />

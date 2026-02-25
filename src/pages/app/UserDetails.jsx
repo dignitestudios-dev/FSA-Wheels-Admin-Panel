@@ -176,155 +176,215 @@ const UserDetails = () => {
         </div>
       )}
 
-      {/* Edit Modal */}
-      {showEditModal && (
-        <div className="fixed -inset-8 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-lg p-6 w-96">
-            <h3 className="text-lg font-semibold mb-4">Edit User</h3>
+     {/* Edit Modal */}
+{showEditModal && (
+  <div className="fixed -inset-8 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div className="bg-white rounded-xl shadow-lg p-6 w-[420px] max-h-[90vh] overflow-y-auto">
+      <h3 className="text-lg font-semibold mb-5 border-b pb-3">
+        Edit User Details
+      </h3>
 
-            <div className="space-y-3">
-              {/* TEXT FIELDS */}
-              <input
-                value={editForm.name}
-                onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Name"
+      <div className="space-y-4">
+
+        {/* Name */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Full Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            value={editForm.name}
+            onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Work Contact */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Work Contact Number
+          </label>
+          <input
+            value={editForm.workContactNumber}
+            onChange={(e) =>
+              setEditForm({ ...editForm, workContactNumber: e.target.value })
+            }
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Personal Contact */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Personal Contact Number
+          </label>
+          <input
+            value={editForm.personalContactNumber}
+            onChange={(e) =>
+              setEditForm({ ...editForm, personalContactNumber: e.target.value })
+            }
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Address */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Address
+          </label>
+          <input
+            value={editForm.address}
+            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Membership Number */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Membership Number
+          </label>
+          <input
+            value={editForm.membershipNumber}
+            onChange={(e) =>
+              setEditForm({ ...editForm, membershipNumber: e.target.value })
+            }
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Driving License Number */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Driving License Number
+          </label>
+          <input
+            value={editForm.drivingLicenseNumber}
+            onChange={(e) =>
+              setEditForm({
+                ...editForm,
+                drivingLicenseNumber: e.target.value,
+              })
+            }
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* Insurance Company */}
+        <div>
+          <label className="block text-sm font-medium mb-1">
+            Insurance Company
+          </label>
+          <input
+            value={editForm.insuranceCompany}
+            onChange={(e) =>
+              setEditForm({ ...editForm, insuranceCompany: e.target.value })
+            }
+            className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-blue-500 outline-none"
+          />
+        </div>
+
+        {/* ================= DOCUMENT SECTION ================= */}
+        <div className="pt-4 border-t space-y-4">
+          <h4 className="text-sm font-semibold text-gray-600">
+            Documents
+          </h4>
+
+          {/* DL Front */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Driving License (Front)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setEditForm({
+                  ...editForm,
+                  drivingLicenseFrontImage: e.target.files[0],
+                })
+              }
+              className="text-sm"
+            />
+            {user.drivingLicenseFrontImage && (
+              <img
+                src={user.drivingLicenseFrontImage}
+                alt="Front"
+                className="w-36 h-24 object-cover border rounded-lg mt-2"
               />
+            )}
+          </div>
 
-              <input
-                value={editForm.workContactNumber}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, workContactNumber: e.target.value })
-                }
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Work Contact Number"
+          {/* DL Back */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Driving License (Back)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setEditForm({
+                  ...editForm,
+                  drivingLicenseBackImage: e.target.files[0],
+                })
+              }
+              className="text-sm"
+            />
+            {user.drivingLicenseBackImage && (
+              <img
+                src={user.drivingLicenseBackImage}
+                alt="Back"
+                className="w-36 h-24 object-cover border rounded-lg mt-2"
               />
+            )}
+          </div>
 
-              <input
-                value={editForm.personalContactNumber}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, personalContactNumber: e.target.value })
-                }
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Personal Contact Number"
+          {/* Insurance */}
+          <div>
+            <label className="block text-sm font-medium mb-1">
+              Insurance Certificate
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setEditForm({
+                  ...editForm,
+                  insuranceCertificateImage: e.target.files[0],
+                })
+              }
+              className="text-sm"
+            />
+            {user.insuranceCertificateImage && (
+              <img
+                src={user.insuranceCertificateImage}
+                alt="Insurance"
+                className="w-40 h-28 object-cover border rounded-lg mt-2"
               />
-
-              <input
-                value={editForm.address}
-                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Address"
-              />
-
-              <input
-                value={editForm.membershipNumber}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, membershipNumber: e.target.value })
-                }
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Membership Number"
-              />
-
-              <input
-                value={editForm.drivingLicenseNumber}
-                onChange={(e) =>
-                  setEditForm({
-                    ...editForm,
-                    drivingLicenseNumber: e.target.value,
-                  })
-                }
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Driving License Number"
-              />
-
-              <input
-                value={editForm.insuranceCompany}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, insuranceCompany: e.target.value })
-                }
-                className="w-full border border-gray-300 rounded-lg p-2"
-                placeholder="Insurance Company"
-              />
-
-              {/* DOCUMENTS */}
-              <div className="pt-3 space-y-3">
-                <label className="text-sm font-semibold">Driving License Front</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      drivingLicenseFrontImage: e.target.files[0],
-                    })
-                  }
-                />
-                {user.drivingLicenseFrontImage && (
-                  <img
-                    src={user.drivingLicenseFrontImage}
-                    alt="Front"
-                    className="w-36 h-24 object-cover border rounded-lg mt-2"
-                  />
-                )}
-
-                <label className="text-sm font-semibold">Driving License Back</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      drivingLicenseBackImage: e.target.files[0],
-                    })
-                  }
-                />
-                {user.drivingLicenseBackImage && (
-                  <img
-                    src={user.drivingLicenseBackImage}
-                    alt="Back"
-                    className="w-36 h-24 object-cover border rounded-lg mt-2"
-                  />
-                )}
-
-                <label className="text-sm font-semibold">Insurance Certificate</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) =>
-                    setEditForm({
-                      ...editForm,
-                      insuranceCertificateImage: e.target.files[0],
-                    })
-                  }
-                />
-                {user.insuranceCertificateImage && (
-                  <img
-                    src={user.insuranceCertificateImage}
-                    alt="Insurance"
-                    className="w-40 h-28 object-cover border rounded-lg mt-2"
-                  />
-                )}
-              </div>
-            </div>
-
-            <div className="flex justify-end gap-4 mt-4">
-              <button
-                onClick={() => setShowEditModal(false)}
-                className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={saveEdit}
-                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold"
-              >
-                {loadingSave ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
+
+      {/* Buttons */}
+      <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+        <button
+          onClick={() => setShowEditModal(false)}
+          className="px-4 py-2 rounded-lg border border-gray-300 hover:bg-gray-100"
+        >
+          Cancel
+        </button>
+
+        <button
+          onClick={saveEdit}
+          className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold"
+        >
+          {loadingSave ? "Saving..." : "Save Changes"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* MAIN CONTENT */}
       <div className="bg-white rounded-xl border border-gray-200 p-6">
