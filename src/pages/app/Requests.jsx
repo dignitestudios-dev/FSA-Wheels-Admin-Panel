@@ -11,6 +11,7 @@ import { AppContext } from "../../context/AppContext";
 
 const Requests = () => {
   const [requests, setRequests] = useState([]);
+  console.log("req--> " , requests)
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 

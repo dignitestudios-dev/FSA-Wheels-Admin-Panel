@@ -237,16 +237,33 @@ const [declineError, setDeclineError] = useState('');
     <GiPathDistance className="text-blue-600" />
     Total Distance: <strong>{reservation.totalDistance || 0} km</strong>
   </div> */}
-<div className="flex items-center gap-2">
-  <PiOfficeChairFill className="text-blue-600" />
-  Requested Seat Type:
-  <strong>
-    {typeof reservation.requestedSeatType === "string"
-      ? reservation.requestedSeatType
-      : Array.isArray(reservation.requestedSeatType)
-      ? reservation.requestedSeatType.join(", ")
-      : ""}
-  </strong>
+<div className="flex flex-col gap-2">
+  <div className="flex items-center gap-2">
+    <PiOfficeChairFill className="text-blue-600" />
+    <span className="font-medium text-gray-700">Requested Seat Type:</span>
+  </div>
+
+  {typeof reservation.requestedSeatType === "string" ? (
+    <span className="ml-6 text-sm font-semibold">{reservation.requestedSeatType}</span>
+  ) : Array.isArray(reservation.requestedSeatType) ? (
+    <div className="ml-6 rounded-lg overflow-hidden text-sm">
+      {/* Header */}
+      <div className="grid grid-cols-2 px-3 py-2 font-semibold text-gray-600">
+        <span>Seat Type</span>
+        <span className="text-center">Quantity</span>
+      </div>
+      {/* Rows */}
+      {reservation.requestedSeatType.map((seat, index) => (
+        <div
+          key={seat._id || index}
+          className={`grid grid-cols-2 px-3 py-2 items-center `}
+        >
+          <span className="text-gray-700">{seat.type}</span>
+          <span className="text-center font-semibold text-blue-600">{seat.quantity}</span>
+        </div>
+      ))}
+    </div>
+  ) : null}
 </div>
 
 
