@@ -1,5 +1,5 @@
 
-import { Blocks, NotepadText } from 'lucide-react';
+import { Blocks, ClipboardList, NotepadText } from 'lucide-react';
 import { User } from 'lucide-react';
 import { Car } from 'lucide-react';
 import { UserPlus } from 'lucide-react';
@@ -49,7 +49,11 @@ export const sidebarData = [
     icon: <Info />,
     link: "/app/sos",
   },
-  
+   {
+    title: "Reports",
+    icon: <ClipboardList  />,
+    link: "/app/reports",
+  },
   //  {
   //   title: "Rides",
   //   icon: <IoCarSportOutline className='text-2xl' />,

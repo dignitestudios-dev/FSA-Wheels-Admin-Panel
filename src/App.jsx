@@ -30,6 +30,8 @@ import PrivacyPolicy from "./pages/app/PrivacyPolicy";
 import InventoryDetails from "./pages/app/InventoryDetails";
 import Requests from "./pages/app/Requests";
 import VehiclePolicy from "./pages/app/Vehiclepolicy";
+import Reports from "./pages/app/Reports";
+import ReportDetails from "./pages/app/ReportDetails";
 
 function App() {
   return (
@@ -51,6 +53,8 @@ function App() {
           <Route path="sos" element={<Sos />} />
 <Route path="/app/inventory/:id" element={<InventoryDetails />} />
           <Route path="/app/requests" element={<Requests />} />
+          <Route path="/app/reports" element={<Reports />} />
+          <Route path="/app/report-details" element={<ReportDetails />} />
 
         </Route>
       </Route>
