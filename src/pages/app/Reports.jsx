@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../axios';
 import { Search } from 'lucide-react';
+import Skeleton from 'react-loading-skeleton';  // Import skeleton loader
 
 const reportTypes = [
   'Pickup Summary',
@@ -17,7 +18,7 @@ const Reports = () => {
   const [clientFilter, setClientFilter] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [apiData, setApiData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingState, setLoadingState] = useState({}); // Track loading state per report type
 
   // ✅ Pagination
   const [currentPage, setCurrentPage] = useState(1);
@@ -37,10 +38,11 @@ const Reports = () => {
   // ✅ API CALL
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
+      setLoadingState((prev) => ({ ...prev, [activeType]: true })); // Set loading for the active report type
       try {
         let endpoint = '';
 
+        // Determine the API endpoint based on the active report type
         if (activeType === 0) {
           endpoint = '/admin/report/initial-pickup';
         } else if (activeType === 1) {
@@ -57,7 +59,7 @@ const Reports = () => {
           endpoint = '/admin/report/client-address';
         } else {
           setApiData([]);
-          setLoading(false);
+          setLoadingState((prev) => ({ ...prev, [activeType]: false })); // End loading if no report type
           return;
         }
 
@@ -65,7 +67,7 @@ const Reports = () => {
           params: {
             page: currentPage,
             limit,
-            ...(debouncedSearch && { clientName: debouncedSearch }), // ✅ SEARCH PARAM
+            ...(debouncedSearch && { clientName: debouncedSearch,  vehicleName: debouncedSearch }), // ✅ SEARCH PARAM
           },
         });
 
@@ -74,7 +76,7 @@ const Reports = () => {
       } catch (err) {
         console.error('API Error:', err);
       } finally {
-        setLoading(false);
+        setLoadingState((prev) => ({ ...prev, [activeType]: false })); // End loading for the active report type
       }
     };
 
@@ -147,13 +149,13 @@ const Reports = () => {
             'End Odo',
           ],
           rows: apiData.map((r) => [
-            r.caseAide || '-',
+            r.vehicleName || '-',
             r.clientName || '-',
             r.startOdo ?? '-',
             r.startLocation || '-',
-            (r.pickups || []).join(', '),
-            r.visit || '-',
-            r.mileage ?? '-',
+            (r.pickupAddresses || []).join(', '),
+            r.visitLocation || '-',
+            r.totalDistance ?? '-',
             r.endOdo ?? '-',
           ]),
         };
@@ -170,12 +172,12 @@ const Reports = () => {
             'End Odo',
           ],
           rows: apiData.map((r) => [
-            r.caseAide || '-',
+            r.vehicleName || '-',
             r.clientName || '-',
             r.startOdo ?? '-',
-            r.visit || '-',
-            (r.dropoffs || []).join(', '),
-            r.mileage ?? '-',
+            r.visitLocation || '-',
+            (r.pickupAddresses || []).join(', '),
+            r.totalDistance ?? '-',
             r.endOdo ?? '-',
           ]),
         };
@@ -185,9 +187,7 @@ const Reports = () => {
           columns: ['Case Aide', 'Clients'],
           rows: apiData.map((r) => [
             r.userName || '-',
-                        r.vehicleName || '-',
-
-            // (r.vehicleName || []).join(', '),
+            r.vehicleName || '-',
           ]),
         };
 
@@ -197,7 +197,8 @@ const Reports = () => {
           rows: apiData.map((r) => [
             r.clientName || '-',
             r.clientAddress || '-',
-            (r.childrenAddresses || []).join(', '),
+            (r.pickupAddresses || []).join(', '),
+
           ]),
         };
 
@@ -208,6 +209,40 @@ const Reports = () => {
 
   const { columns, rows } = buildReport();
   const totalPages = Math.ceil(totalItems / limit);
+
+  const TableSkeleton = ({ columns = 5, rows = 5 }) => {
+  return (
+    <table className="w-full animate-pulse">
+      <thead>
+        <tr className="bg-gray-100">
+          {Array(columns)
+            .fill(0)
+            .map((_, i) => (
+              <th key={i} className="p-3">
+                <div className="h-4 bg-gray-300 rounded w-24"></div>
+              </th>
+            ))}
+        </tr>
+      </thead>
+
+      <tbody>
+        {Array(rows)
+          .fill(0)
+          .map((_, i) => (
+            <tr key={i} className="border-t">
+              {Array(columns)
+                .fill(0)
+                .map((_, j) => (
+                  <td key={j} className="p-3">
+                    <div className="h-4 bg-gray-200 rounded w-full"></div>
+                  </td>
+                ))}
+            </tr>
+          ))}
+      </tbody>
+    </table>
+  );
+};
 
   return (
     <div className="p-6 pt-0">
@@ -238,9 +273,7 @@ const Reports = () => {
               setActiveType(i);
               setCurrentPage(1);
             }}
-            className={`px-4 py-2 rounded-lg text-sm ${
-              activeType === i ? 'bg-blue-600 text-white' : 'bg-gray-100'
-            }`}
+            className={`px-4 py-2 rounded-lg text-sm ${activeType === i ? 'bg-blue-500 text-white' : 'bg-gray-100'}`}
           >
             {type}
           </button>
@@ -249,9 +282,14 @@ const Reports = () => {
 
       {/* TABLE */}
       <div className="bg-white border rounded-xl overflow-x-auto">
-        {loading ? (
-          <div className="p-6 text-gray-500">Loading...</div>
-        ) : (
+       {loadingState[activeType] ? (
+  <div className="p-4">
+    <TableSkeleton
+      columns={columns.length || 5}
+      rows={5}
+    />
+  </div>
+) : (
           <table className="w-full">
             <thead>
               <tr className="bg-gray-100">
@@ -295,7 +333,7 @@ const Reports = () => {
           <button
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((p) => p - 1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-400"
           >
             Prev
           </button>
@@ -307,7 +345,7 @@ const Reports = () => {
           <button
             disabled={currentPage === totalPages}
             onClick={() => setCurrentPage((p) => p + 1)}
-            className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
+            className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:bg-gray-400"
           >
             Next
           </button>
