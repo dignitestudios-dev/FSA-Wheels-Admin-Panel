@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from '../../axios';
 import { Search } from 'lucide-react';
 
 const reportTypes = [
@@ -14,48 +15,75 @@ const reportTypes = [
 const Reports = () => {
   const [activeType, setActiveType] = useState(0);
   const [clientFilter, setClientFilter] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [apiData, setApiData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // STATIC DATA (simulate trips)
-  const data = [
-    {
-      id: 1,
-      clientName: 'Test User 1',
-      caseAide: 'John Doe',
-      startOdo: 12000,
-      endOdo: 12025,
-      startLocation: 'Office',
-      visit: 'City Hospital',
-      pickups: ['ABC Street', 'DEF Street', 'GHI Street'],
-      dropoffs: ['XYZ Street', 'LMN Street'],
-      mileage: 25,
-      clientAddress: 'Main Street',
-      childrenAddresses: ['Child 1 Address', 'Child 2 Address'],
-    },
-    {
-      id: 2,
-      clientName: 'Test User 2',
-      caseAide: 'Jane Smith',
-      startOdo: 15000,
-      endOdo: 15040,
-      startLocation: 'Office',
-      visit: 'Central Clinic',
-      pickups: ['AAA Street', 'BBB Street'],
-      dropoffs: ['CCC Street'],
-      mileage: 40,
-      clientAddress: 'Second Street',
-      childrenAddresses: ['Child A Address'],
-    },
-  ];
+  // ✅ Pagination
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const limit = 10;
 
-  // FILTER
-  const filteredData = data.filter((d) =>
-    d.clientName.toLowerCase().includes(clientFilter.toLowerCase())
-  );
+  // ✅ Debounce (500ms)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(clientFilter);
+      setCurrentPage(1); // reset page on search
+    }, 500);
 
-  // REPORT ENGINE
+    return () => clearTimeout(timer);
+  }, [clientFilter]);
+
+  // ✅ API CALL
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        let endpoint = '';
+
+        if (activeType === 0) {
+          endpoint = '/admin/report/initial-pickup';
+        } else if (activeType === 1) {
+          endpoint = '/admin/report/final-dropoff';
+        } else if (activeType === 2) {
+          endpoint = '/admin/report/driver-mileage';
+        } else if (activeType === 3) {
+          endpoint = '/admin/report/pickup-details';
+        } else if (activeType === 4) {
+          endpoint = '/admin/report/dropoff-details';
+        } else if (activeType === 5) {
+          endpoint = '/admin/report/client-usage';
+        } else if (activeType === 6) {
+          endpoint = '/admin/report/client-address';
+        } else {
+          setApiData([]);
+          setLoading(false);
+          return;
+        }
+
+        const res = await axios.get(endpoint, {
+          params: {
+            page: currentPage,
+            limit,
+            ...(debouncedSearch && { clientName: debouncedSearch }), // ✅ SEARCH PARAM
+          },
+        });
+
+        setApiData(res.data?.data || []);
+        setTotalItems(res.data?.pagination?.totalItems || 0);
+      } catch (err) {
+        console.error('API Error:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [activeType, currentPage, debouncedSearch]);
+
+  // ✅ REPORT BUILDER (NO FRONTEND FILTERING)
   const buildReport = () => {
     switch (activeType) {
-      // 1. Pickup Summary (ONLY FIRST PICKUP)
       case 0:
         return {
           columns: [
@@ -66,64 +94,46 @@ const Reports = () => {
             'Mileage',
             'End Odo',
           ],
-          rows: filteredData.map((r) => [
-            r.clientName,
-            r.startOdo,
-            r.pickups[0],
-            r.visit,
-            r.mileage,
-            r.endOdo,
+          rows: apiData.map((r) => [
+            r.clientName || '-',
+            '-',
+            r.firstPickupAddress || '-',
+            r.visitLocation || '-',
+            r.totalDistance ?? '-',
+            '-',
           ]),
         };
 
-      // 2. Drop-off Summary (ONLY LAST DROP)
       case 1:
         return {
           columns: [
             'Client',
-            'Start Odo',
-            'Visit',
+            'Visit Location',
             'Final Drop-off',
             'Mileage',
-            'End Odo',
+            'Date',
           ],
-          rows: filteredData.map((r) => [
-            r.clientName,
-            r.startOdo,
-            r.visit,
-            r.dropoffs[r.dropoffs.length - 1],
-            r.mileage,
-            r.endOdo,
+          rows: apiData.map((r) => [
+            r.clientName || '-',
+            r.visitLocation || '-',
+            r.finalDropOffAddress || '-',
+            r.totalDistance ?? '-',
+            r.createdAt
+              ? new Date(r.createdAt).toLocaleDateString()
+              : '-',
           ]),
         };
 
-      // 3. Mileage Summary (GROUPED)
-      case 2: {
-        const grouped = {};
-
-        filteredData.forEach((r) => {
-          const key = `${r.caseAide}-${r.clientName}`;
-          if (!grouped[key]) {
-            grouped[key] = {
-              caseAide: r.caseAide,
-              client: r.clientName,
-              mileage: 0,
-            };
-          }
-          grouped[key].mileage += r.mileage;
-        });
-
+      case 2:
         return {
-          columns: ['Case Aide', 'Client', 'Total Mileage'],
-          rows: Object.values(grouped).map((g) => [
-            g.caseAide,
-            g.client,
-            g.mileage,
+          columns: ['Case Aide', 'Vehicle', 'Total Mileage'],
+          rows: apiData.map((r) => [
+            r.userName || '-',
+            r.vehicleName || '-',
+            r.totalMileage ?? '-',
           ]),
         };
-      }
 
-      // 4. Full Pickup Route (ALL PICKUPS SHOWN)
       case 3:
         return {
           columns: [
@@ -136,19 +146,18 @@ const Reports = () => {
             'Mileage',
             'End Odo',
           ],
-          rows: filteredData.map((r) => [
-            r.caseAide,
-            r.clientName,
-            r.startOdo,
-            r.startLocation,
-            r.pickups.join(', '),
-            r.visit,
-            r.mileage,
-            r.endOdo,
+          rows: apiData.map((r) => [
+            r.caseAide || '-',
+            r.clientName || '-',
+            r.startOdo ?? '-',
+            r.startLocation || '-',
+            (r.pickups || []).join(', '),
+            r.visit || '-',
+            r.mileage ?? '-',
+            r.endOdo ?? '-',
           ]),
         };
 
-      // 5. Full Drop-off Route (ALL DROPOFFS SHOWN)
       case 4:
         return {
           columns: [
@@ -160,45 +169,35 @@ const Reports = () => {
             'Mileage',
             'End Odo',
           ],
-          rows: filteredData.map((r) => [
-            r.caseAide,
-            r.clientName,
-            r.startOdo,
-            r.visit,
-            r.dropoffs.join(', '),
-            r.mileage,
-            r.endOdo,
+          rows: apiData.map((r) => [
+            r.caseAide || '-',
+            r.clientName || '-',
+            r.startOdo ?? '-',
+            r.visit || '-',
+            (r.dropoffs || []).join(', '),
+            r.mileage ?? '-',
+            r.endOdo ?? '-',
           ]),
         };
 
-      // 6. Case Aide Usage (CLIENT LIST GROUPED)
-      case 5: {
-        const grouped = {};
-
-        filteredData.forEach((r) => {
-          if (!grouped[r.caseAide]) {
-            grouped[r.caseAide] = new Set();
-          }
-          grouped[r.caseAide].add(r.clientName);
-        });
-
+      case 5:
         return {
-          columns: ['Case Aide', 'Clients Transported'],
-          rows: Object.entries(grouped).map(([aide, clients]) => [
-            aide,
-            Array.from(clients).join(', '),
+          columns: ['Case Aide', 'Clients'],
+          rows: apiData.map((r) => [
+            r.userName || '-',
+                        r.vehicleName || '-',
+
+            // (r.vehicleName || []).join(', '),
           ]),
         };
-      }
 
-      // 7. Client Address Registry
       case 6:
         return {
           columns: ['Client', 'Client Address', 'Children Addresses'],
-          rows: filteredData.map((r) => [
-            r.clientName,
-            r.clientAddress,
-            r.childrenAddresses.join(', '),
+          rows: apiData.map((r) => [
+            r.clientName || '-',
+            r.clientAddress || '-',
+            (r.childrenAddresses || []).join(', '),
           ]),
         };
 
@@ -208,16 +207,14 @@ const Reports = () => {
   };
 
   const { columns, rows } = buildReport();
+  const totalPages = Math.ceil(totalItems / limit);
 
   return (
     <div className="p-6 pt-0">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold text-gray-800">
-          Reports
-        </h2>
+        <h2 className="text-2xl font-semibold">Reports</h2>
 
-        {/* SEARCH FILTER */}
         <div className="relative w-72">
           <Search
             size={16}
@@ -226,22 +223,23 @@ const Reports = () => {
           <input
             value={clientFilter}
             onChange={(e) => setClientFilter(e.target.value)}
-            placeholder="Filter by client..."
-            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Search client..."
+            className="w-full pl-9 pr-3 py-2 border rounded-lg text-sm"
           />
         </div>
       </div>
 
-      {/* REPORT TYPE FILTERS */}
-      <div className="flex gap-2 overflow-x-auto mb-6">
+      {/* TABS */}
+      <div className="flex gap-2 mb-6 overflow-x-auto">
         {reportTypes.map((type, i) => (
           <button
             key={i}
-            onClick={() => setActiveType(i)}
-            className={`px-4 py-2 text-sm rounded-lg whitespace-nowrap transition ${
-              activeType === i
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600'
+            onClick={() => {
+              setActiveType(i);
+              setCurrentPage(1);
+            }}
+            className={`px-4 py-2 rounded-lg text-sm ${
+              activeType === i ? 'bg-blue-600 text-white' : 'bg-gray-100'
             }`}
           >
             {type}
@@ -251,47 +249,70 @@ const Reports = () => {
 
       {/* TABLE */}
       <div className="bg-white border rounded-xl overflow-x-auto">
-        <table className="w-full text-left">
-          <thead>
-            <tr className="bg-gray-100 border-b">
-              {columns.map((col, i) => (
-                <th
-                  key={i}
-                  className="py-3 px-4 text-sm font-semibold text-gray-600"
-                >
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-
-          <tbody>
-            {rows.map((row, i) => (
-              <tr key={i} className="border-b hover:bg-gray-50">
-                {row.map((cell, j) => (
-                  <td
-                    key={j}
-                    className="py-3 px-4 text-sm text-gray-800"
-                  >
-                    {cell}
-                  </td>
+        {loading ? (
+          <div className="p-6 text-gray-500">Loading...</div>
+        ) : (
+          <table className="w-full">
+            <thead>
+              <tr className="bg-gray-100">
+                {columns.map((col, i) => (
+                  <th key={i} className="p-3 text-left text-sm text-gray-600">
+                    {col}
+                  </th>
                 ))}
               </tr>
-            ))}
+            </thead>
 
-            {rows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={columns.length}
-                  className="text-center py-6 text-gray-500"
-                >
-                  No records found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr key={i} className="border-t">
+                  {row.map((cell, j) => (
+                    <td key={j} className="p-3 text-sm">
+                      {cell ?? '-'}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+
+              {!rows.length && (
+                <tr>
+                  <td
+                    colSpan={columns.length}
+                    className="text-center p-6 text-gray-500"
+                  >
+                    No records found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
+
+      {/* PAGINATION */}
+      {totalPages > 1 && (
+        <div className="flex justify-end mt-6 gap-4">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((p) => p - 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
+          >
+            Prev
+          </button>
+
+          <span className="text-sm mt-2">
+            Page {currentPage} of {totalPages}
+          </span>
+
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => setCurrentPage((p) => p + 1)}
+            className="px-4 py-2 bg-blue-600 text-white rounded disabled:bg-gray-400"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </div>
   );
 };
