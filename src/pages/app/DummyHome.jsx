@@ -72,7 +72,7 @@ const DummyHome = () => {
       {/* ===================== STATS GRID ===================== */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {loading ? (
-          Array(5)
+          Array(4)
             .fill(0)
             .map((_, idx) => (
               <div

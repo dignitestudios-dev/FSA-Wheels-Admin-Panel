@@ -7,9 +7,8 @@ import { useNavigate } from "react-router";
 import axios from "../../axios";
 import CustomLoader from "../../components/global/CustomLoader";
 import { Download } from "lucide-react";
-import { SuccessToast, ErrorToast } from "../../components/global/Toaster";
 
-const Reservations = () => {
+const ClientListModal = () => {
   const [activeTab, setActiveTab] = useState("approved");
   const [reservations, setReservations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +23,6 @@ const Reservations = () => {
   const [selectedReservation, setSelectedReservation] = useState(null);
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedDriverId, setSelectedDriverId] = useState(null);
-  const [assigning, setAssigning] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState(null);
 
 
   const tabs = ["approved", "rejected", "cancelled", "completed", "issues"];
@@ -125,44 +122,18 @@ const Reservations = () => {
     fetchDrivers();
   }, [driverPage, debouncedSearch, showDriverModal]);
 
-const handleAssignDriver = async (driverId) => {
-  try {
-    if (!selectedReservation?._id) return;
+  const handleAssignDriver = async (driverId) => {
+    try {
+      await axios.post(`/admin/reservations/assign-driver`, {
+        reservationId: selectedReservation._id,
+        driverId,
+      });
 
-    setAssigning(true);
-
-    const reservationID = selectedReservation._id;
-
-    const res = await axios.post(
-      `/admin/reservation/reassign`,
-      null,
-      {
-        params: {
-          reservationID,
-          driverID: driverId,
-        },
-      }
-    );
-
-    if (res?.data?.success) {
-      SuccessToast(res.data.message || "Driver assigned successfully");
-setShowDriverModal(false);
-setSelectedDriverId(null);
-setSelectedDriver(null);
-setSelectedReservation(null);
-      setActiveTab((prev) => prev);
-    } else {
-      ErrorToast(res?.data?.message || "Failed to assign driver");
+      setShowDriverModal(false);
+    } catch (err) {
+      console.error("Assign driver failed:", err);
     }
-
-  } catch (err) {
-    ErrorToast(
-      err?.response?.data?.message || "Something went wrong"
-    );
-  } finally {
-    setAssigning(false);
-  }
-};
+  };
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -192,8 +163,6 @@ const CustomSkeletonLoader = () => {
     </div>
   );
 };
-
-
 
   return (
     <div className="p-6 pt-0 space-y-6">
@@ -375,99 +344,85 @@ const CustomSkeletonLoader = () => {
         </button>
       </div>
 
-
-   {selectedReservation && (
-  <div className="mb-4 p-3 border rounded-xl bg-gray-50 text-sm">
+    {selectedReservation && (
+  <div className="mb-4 p-4 border rounded-xl bg-gray-50">
     
-    {/* Top */}
-    <div className="flex justify-between items-center mb-2">
-      <div className="flex items-center gap-2">
+    {/* Top Row: Vehicle + Status */}
+    <div className="flex justify-between items-start mb-3">
+      
+      {/* Vehicle Info + Image */}
+      <div className="flex items-center gap-3">
         <img
           src={selectedReservation.vehicle?.image || audi}
           alt="vehicle"
-          className="w-12 h-8 object-contain"
+          className="w-14 h-10 object-contain"
         />
+
         <div>
-          <p className="font-semibold text-gray-800">
-            {selectedReservation.vehicle
+          <p className="text-sm font-semibold text-gray-800">
+            {selectedReservation?.vehicle
               ? `${selectedReservation.vehicle.make} ${selectedReservation.vehicle.model}`
-              : "No Vehicle"}
+              : "Vehicle Not Assigned"}
           </p>
+
           <p className="text-xs text-gray-500">
-            {selectedReservation.vehicle?.vehicleName} • {selectedReservation.vehicle?.vehicleType}
+            {selectedReservation?.vehicle?.vehicleName} •{" "}
+            {selectedReservation?.vehicle?.vehicleType}
           </p>
         </div>
       </div>
 
+      {/* Status Badge */}
       <span
-        className={`text-xs px-2 py-1 rounded-full capitalize font-medium
-        ${
-          {
-            approved: "bg-green-100 text-green-600",
-            rejected: "bg-red-100 text-red-600",
-            cancelled: "bg-gray-200 text-gray-600",
-            completed: "bg-blue-100 text-blue-600",
-          }[selectedReservation.status] || "bg-yellow-100 text-yellow-600"
+        className={`text-xs px-2 py-1 rounded-full font-semibold capitalize ${
+          selectedReservation.status === "approved"
+            ? "bg-green-100 text-green-600"
+            : selectedReservation.status === "rejected"
+            ? "bg-red-100 text-red-600"
+            : selectedReservation.status === "cancelled"
+            ? "bg-gray-200 text-gray-600"
+            : selectedReservation.status === "completed"
+            ? "bg-blue-100 text-blue-600"
+            : "bg-yellow-100 text-yellow-600"
         }`}
       >
         {selectedReservation.status}
       </span>
     </div>
 
-    {/* Bottom */}
-    <div className="grid grid-cols-2 gap-2 text-gray-600 ml-2">
-      <p><span className="text-gray-400">Client:</span> {selectedReservation.user?.name || "-"}</p>
-      <p><span className="text-gray-400">Seats:</span> {selectedReservation.vehicleSeat || "-"}</p>
-      <p className="col-span-2">
-        <span className="text-gray-400">Time:</span>{" "}
-        {new Date(selectedReservation.startDate).toLocaleTimeString()} -{" "}
-        {new Date(selectedReservation.vehicleReturnDate).toLocaleTimeString()}
-      </p>
-    </div>
-
-  </div>
-)}
-
-{selectedDriver && (
-  <div className="mb-4 p-3 border rounded-xl bg-blue-50 text-sm flex justify-between items-center">
-
-    {/* Left */}
-    <div className="flex items-center gap-3">
-      {selectedDriver.profilePicture ? (
-        <img
-          src={selectedDriver.profilePicture}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-      ) : (
-        <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center">
-          {selectedDriver.name?.[0]}
-        </div>
-      )}
-
+    {/* Bottom Grid */}
+    <div className="grid grid-cols-2 gap-3 text-sm text-gray-600">
+      
+      {/* Client */}
       <div>
-        <p className="font-semibold text-gray-800">
-          {selectedDriver.name}
-        </p>
-        <p className="text-xs text-gray-500">
-          {selectedDriver.email}
+        <p className="text-xs text-gray-400">Client</p>
+        <p className="font-medium text-gray-800">
+          {selectedReservation?.user?.name || "-"}
         </p>
       </div>
 
-      
-    </div>
+      {/* Seats */}
+      <div>
+        <p className="text-xs text-gray-400">Seats</p>
+        <p className="font-medium text-gray-800">
+          {selectedReservation.vehicleSeat || "-"}
+        </p>
+      </div>
 
-    {/* Right */}
-    <button
-      onClick={() => {
-        setSelectedDriverId(null);
-        setSelectedDriver(null);
-      }}
-      className="text-xs px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600"
-    >
-      Clear
-    </button>
+      {/* Time */}
+      <div className="col-span-2">
+        <p className="text-xs text-gray-400">Time</p>
+        <p className="font-medium text-gray-800">
+          {new Date(selectedReservation.startDate).toLocaleTimeString()} -{" "}
+          {new Date(
+            selectedReservation.vehicleReturnDate
+          ).toLocaleTimeString()}
+        </p>
+      </div>
+    </div>
   </div>
 )}
+
       {/* Search */}
       <input
         type="text"
@@ -495,14 +450,9 @@ const CustomSkeletonLoader = () => {
         <div
           key={driver._id}
           onClick={() => {
-  if (isSelected) {
-    setSelectedDriverId(null);
-    setSelectedDriver(null);
-  } else {
-    setSelectedDriverId(driver._id);
-    setSelectedDriver(driver);
-  }
-}}
+            // Toggle the selection
+            setSelectedDriverId(isSelected ? null : driver._id);
+          }}
           className={`flex justify-between items-center border rounded-lg p-3 cursor-pointer transition ${
             isSelected
               ? "border-blue-600 bg-blue-50"
@@ -569,26 +519,23 @@ const CustomSkeletonLoader = () => {
         
         </div>
         {/* Done Button */}
-      <div className="flex justify-end">
-  <button
-    disabled={!selectedDriverId || assigning}
-    onClick={() => handleAssignDriver(selectedDriverId)}
-    className={`px-5 py-2 rounded-lg text-white text-sm font-medium transition flex items-center gap-2 ${
-      selectedDriverId && !assigning
-        ? "bg-blue-500 hover:bg-blue-700"
-        : "bg-gray-300 cursor-not-allowed"
-    }`}
-  >
-    {assigning ? (
-      <>
-        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-        Assigning...
-      </>
-    ) : (
-      "Done"
-    )}
-  </button>
-</div>
+      <div className=" flex justify-end">
+        <button
+          disabled={!selectedDriverId}
+          onClick={async () => {
+            await handleAssignDriver(selectedDriverId);
+            setShowDriverModal(false);
+            setSelectedDriverId(null);
+          }}
+          className={`px-5 py-2 rounded-lg text-white text-sm font-medium transition ${
+            selectedDriverId
+              ? "bg-blue-500 hover:bg-blue-700"
+              : "bg-gray-300 cursor-not-allowed"
+          }`}
+        >
+          Done
+        </button>
+      </div>
       </div>
 
       
@@ -600,4 +547,4 @@ const CustomSkeletonLoader = () => {
   );
 };
 
-export default Reservations;
+export default ClientListModal;
